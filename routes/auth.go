@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"vehiclesales/middleware"
 	"vehiclesales/requests"
 	"vehiclesales/services"
 
@@ -67,4 +68,66 @@ func GetCompaniesList(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, users)
+}
+
+// ================= USER MANAGEMENT (Admin creates users for their company) =================
+
+func CreateUser(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var req requests.CreateUserRequest
+	if err := req.Validate(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get the admin's company info from JWT claims
+	userClaims, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+	claims := userClaims.(*middleware.Claims)
+
+	service := services.NewAuthService()
+	user, err := service.CreateUser(ctx, &req, claims.CompanyCode, "")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, user)
+}
+
+func GetUsers(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	companyCode := c.Param("company_code")
+
+	service := services.NewAuthService()
+	users, err := service.GetUsers(ctx, companyCode)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
+}
+
+func DeleteUser(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userID := c.Param("id")
+
+	service := services.NewAuthService()
+	err := service.DeleteUser(ctx, userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }

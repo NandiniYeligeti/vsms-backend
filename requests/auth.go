@@ -36,3 +36,19 @@ func (r *CreateCompanyRequest) Validate(c *gin.Context) error {
 	}
 	return nil
 }
+
+type CreateUserRequest struct {
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+func (r *CreateUserRequest) Validate(c *gin.Context) error {
+	if err := c.ShouldBindJSON(r); err != nil {
+		return err
+	}
+	if r.Username == "" || r.Email == "" || r.Password == "" {
+		return errors.New("username, email, and password are required")
+	}
+	return nil
+}

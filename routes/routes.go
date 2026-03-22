@@ -115,4 +115,13 @@ func Routes(api *gin.RouterGroup) {
 		dashboard.POST("/seed/:company_code", SeedData)
 	}
 
+	// ================= USER MANAGEMENT =================
+	users := api.Group("/users")
+	users.Use(middleware.AuthMiddleware())
+	{
+		users.POST("/:company_code", CreateUser)
+		users.GET("/:company_code", GetUsers)
+		users.DELETE("/:company_code/:id", DeleteUser)
+	}
+
 }
