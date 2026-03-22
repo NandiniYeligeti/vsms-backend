@@ -15,10 +15,13 @@ type Salesperson struct {
 	CompanyID string `bson:"company_id" json:"company_id"`
 	BranchID  string `bson:"branch_id" json:"branch_id"`
 
-	FullName     string  `bson:"full_name" json:"full_name"`
-	MobileNumber string  `bson:"mobile_number" json:"mobile_number"`
-	Email        string  `bson:"email" json:"email"`
-	Commission   float64 `bson:"commission" json:"commission"`
+	FullName     string `bson:"full_name" json:"full_name"`
+	MobileNumber string `bson:"mobile_number" json:"mobile_number"`
+	Email        string `bson:"email" json:"email"`
+
+	CommissionType  string  `bson:"commission_type" json:"commissionType"`
+	CommissionValue float64 `bson:"commission_value" json:"commissionValue"`
+	Vehicle         string  `bson:"vehicle,omitempty" json:"vehicle,omitempty"`
 
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 
@@ -27,11 +30,14 @@ type Salesperson struct {
 }
 
 type UpdateSalesperson struct {
-	FullName     *string  `bson:"full_name,omitempty" json:"full_name,omitempty"`
-	MobileNumber *string  `bson:"mobile_number,omitempty" json:"mobile_number,omitempty"`
-	Email        *string  `bson:"email,omitempty" json:"email,omitempty"`
-	BranchID     *string  `bson:"branch_id,omitempty" json:"branch_id,omitempty"`
-	Commission   *float64 `bson:"commission,omitempty" json:"commission,omitempty"`
+	FullName     *string `bson:"full_name,omitempty" json:"full_name,omitempty"`
+	MobileNumber *string `bson:"mobile_number,omitempty" json:"mobile_number,omitempty"`
+	Email        *string `bson:"email,omitempty" json:"email,omitempty"`
+	BranchID     *string `bson:"branch_id,omitempty" json:"branch_id,omitempty"`
+
+	CommissionType  *string  `bson:"commission_type,omitempty" json:"commissionType,omitempty"`
+	CommissionValue *float64 `bson:"commission_value,omitempty" json:"commissionValue,omitempty"`
+	Vehicle         *string  `bson:"vehicle,omitempty" json:"vehicle,omitempty"`
 }
 
 func NewSalesperson() *Salesperson {
@@ -54,5 +60,8 @@ func (s *Salesperson) Bind(req *requests.CreateSalespersonRequest) {
 	s.FullName = req.FullName
 	s.MobileNumber = req.MobileNumber
 	s.Email = req.Email
-	s.Commission = req.Commission
+
+	s.CommissionType = req.CommissionType
+	s.CommissionValue = req.CommissionValue
+	s.Vehicle = req.Vehicle
 }

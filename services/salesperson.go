@@ -142,20 +142,32 @@ func (s *salespersonService) Update(
 	if req.FullName != nil {
 		updateFields["full_name"] = *req.FullName
 	}
+
 	if req.MobileNumber != nil {
 		if !isValidSalespersonPhone(*req.MobileNumber) {
 			return nil, errors.New("phone number must be exactly 10 digits")
 		}
 		updateFields["mobile_number"] = *req.MobileNumber
 	}
+
 	if req.Email != nil {
 		updateFields["email"] = *req.Email
 	}
+
 	if req.BranchID != nil {
 		updateFields["branch_id"] = *req.BranchID
 	}
-	if req.Commission != nil {
-		updateFields["commission"] = *req.Commission
+
+	if req.CommissionType != nil {
+		updateFields["commission_type"] = *req.CommissionType
+	}
+
+	if req.CommissionValue != nil {
+		updateFields["commission_value"] = *req.CommissionValue
+	}
+
+	if req.Vehicle != nil {
+		updateFields["vehicle"] = *req.Vehicle
 	}
 
 	updateFields["updated_at"] = time.Now()
