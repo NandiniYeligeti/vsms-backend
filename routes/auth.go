@@ -3,6 +3,7 @@ package routes
 import (
 	"context"
 	"net/http"
+	"os"
 	"time"
 
 	"vehiclesales/middleware"
@@ -29,8 +30,16 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Set JWT as httpOnly, Secure cookie (adjust domain as needed)
-	c.SetCookie("access_token", res.Token, 3600, "/", "localhost", false, true) // Set Secure=true in production
+	// Detect environment (Render sets PORT or GIN_MODE)
+	isProd := os.Getenv("PORT") != "" || os.Getenv("GIN_MODE") == "release"
+
+	if isProd {
+		// IMPORTANT: For cross-site cookies (Vercel -> Render), we need SameSite=None and Secure=true
+		c.SetSameSite(http.SameSiteNoneMode)
+		c.SetCookie("access_token", res.Token, 86400, "/", "", true, true)
+	} else {
+		c.SetCookie("access_token", res.Token, 86400, "/", "", false, true)
+	}
 
 	// Return only user info (not token)
 	c.JSON(http.StatusOK, gin.H{"user": res.User})
