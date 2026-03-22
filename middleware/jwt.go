@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"errors"
+	"log"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -14,7 +16,16 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-var jwtSecret = []byte("your-very-secret-key") // Use os.Getenv in production
+var jwtSecret []byte
+
+func InitJWT() {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		log.Println("⚠️  WARNING: JWT_SECRET not set, using insecure default. Set it in production!")
+		secret = "dev-only-insecure-secret-change-me"
+	}
+	jwtSecret = []byte(secret)
+}
 
 func GenerateJWT(email, role, companyCode string) (string, error) {
 	claims := Claims{
@@ -22,7 +33,7 @@ func GenerateJWT(email, role, companyCode string) (string, error) {
 		Role:        role,
 		CompanyCode: companyCode,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

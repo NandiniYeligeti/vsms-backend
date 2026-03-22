@@ -4,20 +4,18 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"vehiclesales/middleware"
 	"vehiclesales/routes"
 	"vehiclesales/storage"
 
-	// "shared/pkgs/jwtmanager"
-
-	// "shared/pkgs/keys"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
+
 
 func main() {
 	// Load environment variables
@@ -25,12 +23,10 @@ func main() {
 		log.Println("No .env file found")
 	}
 
+	// Initialize JWT secret from env
+	middleware.InitJWT()
+
 	// Connect to MongoDB
-
-	// if err := keys.InitKeyPair(); err != nil {
-	// 	log.Fatalf("failed to initiate key pair %v", err)
-	// }
-
 	if err := storage.InitMongo(); err != nil {
 		log.Fatalf("Mongo connection failed: %v", err)
 	}
@@ -46,10 +42,21 @@ func main() {
 	app := gin.Default()
 
 	// Enable CORS globally
+	allowedOrigins := []string{
+		"http://localhost:5173",
+		"http://localhost:3000",
+		"http://localhost:4173",
+		"http://localhost:8080",
+		"https://vehiclesalemanagementsystem.vercel.app",
+	}
+	// Allow additional origin from env (e.g. custom domain)
+	if extraOrigin := os.Getenv("FRONTEND_URL"); extraOrigin != "" {
+		allowedOrigins = append(allowedOrigins, extraOrigin)
+	}
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173", "http://localhost:3000", "http://localhost:4173", "http://localhost:8080"},
+		AllowOrigins:     allowedOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Content-Type, Accept, Origin, X-Requested-With, X-CSRF-Token, X-Company-Code, Authorization, X-Forwarded-Proto"},
+		AllowHeaders:     []string{"Content-Type", "Accept", "Origin", "X-Requested-With", "X-CSRF-Token", "X-Company-Code", "Authorization", "X-Forwarded-Proto"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           24 * time.Hour,
