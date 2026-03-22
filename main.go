@@ -94,13 +94,18 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"message": "Access granted", "user": claims})
 	})
 
-	// Start server
+	// Start server (Render will automatically set the PORT variable)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "4001"
+	}
+
 	server := &http.Server{
-		Addr:    ":4001",
+		Addr:    ":" + port,
 		Handler: app,
 	}
 
-	fmt.Println("🚀 Server running on :4001")
+	fmt.Printf("🚀 Server running on :%s\n", port)
 
 	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed: %v", err)
