@@ -14,21 +14,29 @@ var client *mongo.Client
 
 // Initialize MongoDB with Atlas connection
 func InitMongo() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+	log.Println("⏳ Connecting to MongoDB...")
+	connectCtx, cancelConnect := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancelConnect()
 
-	// Atlas connection string
-	clientOptions := options.Client().ApplyURI(os.Getenv("SERVICE_MONGODB_URL"))
+	uri := os.Getenv("SERVICE_MONGODB_URL")
+	if uri == "" {
+		log.Fatal("SERVICE_MONGODB_URL is not set in .env")
+	}
+
+	clientOptions := options.Client().ApplyURI(uri)
 
 	var err error
-	client, err = mongo.Connect(ctx, clientOptions)
+	client, err = mongo.Connect(connectCtx, clientOptions)
 	if err != nil {
 		log.Println("❌ Mongo Connect Error:", err)
 		return err
 	}
 
-	// Ping database
-	if err := client.Ping(ctx, nil); err != nil {
+	log.Println("⏳ Pinging MongoDB...")
+	pingCtx, cancelPing := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancelPing()
+
+	if err := client.Ping(pingCtx, nil); err != nil {
 		log.Println("❌ Mongo Ping Error:", err)
 		return err
 	}
