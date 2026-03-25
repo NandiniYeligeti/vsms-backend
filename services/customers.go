@@ -274,23 +274,49 @@ func (s *customerService) GetLedger(
 
 	// Add Sales Orders as Debits
 	for _, s := range sales {
+		vehicleStr := fmt.Sprintf("%s %s", s.Brand, s.Model)
+		if s.ChassisNumber != "" {
+			vehicleStr += fmt.Sprintf(" (%s)", s.ChassisNumber)
+		}
+
 		entries = append(entries, &models.LedgerEntry{
 			ID:          s.EntityID,
 			Date:        s.SaleDate,
-			Description: fmt.Sprintf("Vehicle Sale — %s %s", s.Brand, s.Model),
+			Description: "Vehicle Sale",
 			Debit:       s.TotalAmount,
 			Credit:      0,
+			VehicleName: vehicleStr,
+			VehicleID:   s.EntityID,
 		})
 	}
 
 	// Add Payments as Credits
 	for _, p := range payments {
+		vName := "Other/Unassigned"
+		vID := p.SalesOrderID
+		if vID == "" {
+			vID = "unassigned"
+		} else {
+			for _, s := range sales {
+				if s.EntityID == vID || s.ID.Hex() == vID {
+					vName = fmt.Sprintf("%s %s", s.Brand, s.Model)
+					if s.ChassisNumber != "" {
+						vName += fmt.Sprintf(" (%s)", s.ChassisNumber)
+					}
+					vID = s.EntityID
+					break
+				}
+			}
+		}
+
 		entries = append(entries, &models.LedgerEntry{
 			ID:          p.EntityID,
 			Date:        p.PaymentDate,
 			Description: fmt.Sprintf("%s — %s", p.PaymentType, p.PaymentMode),
 			Debit:       0,
 			Credit:      p.PaymentAmount,
+			VehicleName: vName,
+			VehicleID:   vID,
 		})
 	}
 

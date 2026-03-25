@@ -39,6 +39,8 @@ type LedgerEntry struct {
 	Debit       float64   `json:"debit"`
 	Credit      float64   `json:"credit"`
 	Balance     float64   `json:"balance"`
+	VehicleName string    `json:"vehicle_name"`
+	VehicleID   string    `json:"vehicle_id"`
 }
 
 type UpdateCustomer struct {
