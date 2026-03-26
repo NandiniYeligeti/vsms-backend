@@ -23,6 +23,10 @@ type VehicleInventory struct {
 	FuelType  string  `bson:"fuel_type" json:"fuel_type"`
 	BasePrice float64 `bson:"base_price" json:"base_price"`
 
+	Accessories []string `bson:"accessories" json:"accessories"`
+	TotalPrice  float64  `bson:"total_price" json:"total_price"`
+	SellingPrice float64 `bson:"selling_price" json:"selling_price"`
+
 	Color         string    `bson:"color" json:"color"`
 	ChassisNumber string    `bson:"chassis_number" json:"chassis_number"`
 	EngineNumber  string    `bson:"engine_number" json:"engine_number"`
@@ -41,6 +45,7 @@ type UpdateVehicleInventory struct {
 	ChassisNumber *string    `bson:"chassis_number,omitempty" json:"chassis_number,omitempty"`
 	EngineNumber  *string    `bson:"engine_number,omitempty" json:"engine_number,omitempty"`
 	PurchaseDate  *time.Time `bson:"purchase_date,omitempty" json:"purchase_date,omitempty"`
+	SellingPrice  *float64   `bson:"selling_price,omitempty" json:"selling_price,omitempty"`
 }
 
 func NewVehicleInventory() *VehicleInventory {
@@ -66,4 +71,10 @@ func (v *VehicleInventory) Bind(req *requests.CreateVehicleInventoryRequest) {
 	v.ChassisNumber = req.ChassisNumber
 	v.EngineNumber = req.EngineNumber
 	v.PurchaseDate = req.PurchaseDate
+	v.Accessories = req.Accessories
+	v.TotalPrice = req.TotalPrice
+	if req.Status != "" {
+		v.Status = req.Status
+	}
+	v.SellingPrice = req.SellingPrice
 }

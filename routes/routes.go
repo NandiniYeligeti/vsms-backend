@@ -124,4 +124,21 @@ func Routes(api *gin.RouterGroup) {
 		users.DELETE("/:company_code/:id", DeleteUser)
 	}
 
+	// ================= VEHICLE FEATURES =================
+	vehicleFeatures := api.Group("/vehicle-features")
+	vehicleFeatures.Use(middleware.AuthMiddleware())
+	{
+		vehicleFeatures.POST("/type/:company_code", CreateVehicleType)
+		vehicleFeatures.GET("/type/:company_code", GetVehicleTypes)
+		vehicleFeatures.DELETE("/type/:company_code/:id", DeleteVehicleType)
+
+		vehicleFeatures.POST("/category/:company_code", CreateVehicleCategory)
+		vehicleFeatures.GET("/category/:company_code", GetVehicleCategories)
+		vehicleFeatures.DELETE("/category/:company_code/:id", DeleteVehicleCategory)
+
+		vehicleFeatures.POST("/accessory/:company_code", CreateVehicleAccessory)
+		vehicleFeatures.GET("/accessory/:company_code", GetVehicleAccessories)
+		vehicleFeatures.DELETE("/accessory/:company_code/:id", DeleteVehicleAccessory)
+	}
+
 }

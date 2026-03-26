@@ -21,6 +21,10 @@ type VehicleModel struct {
 	FuelType  string  `bson:"fuel_type" json:"fuel_type"`
 	BasePrice float64 `bson:"base_price" json:"base_price"`
 
+	TypeID     string `bson:"type_id" json:"type_id"`
+	CategoryID string `bson:"category_id" json:"category_id"`
+	Colors     []string `bson:"colors" json:"colors"`
+
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
@@ -28,11 +32,14 @@ type VehicleModel struct {
 }
 
 type UpdateVehicleModel struct {
-	Brand     *string  `bson:"brand,omitempty" json:"brand,omitempty"`
-	Model     *string  `bson:"model,omitempty" json:"model,omitempty"`
-	Variant   *string  `bson:"variant,omitempty" json:"variant,omitempty"`
-	FuelType  *string  `bson:"fuel_type,omitempty" json:"fuel_type,omitempty"`
-	BasePrice *float64 `bson:"base_price,omitempty" json:"base_price,omitempty"`
+	Brand      *string  `bson:"brand,omitempty" json:"brand,omitempty"`
+	Model      *string  `bson:"model,omitempty" json:"model,omitempty"`
+	Variant    *string  `bson:"variant,omitempty" json:"variant,omitempty"`
+	FuelType   *string  `bson:"fuel_type,omitempty" json:"fuel_type,omitempty"`
+	BasePrice  *float64 `bson:"base_price,omitempty" json:"base_price,omitempty"`
+	TypeID     *string  `bson:"type_id,omitempty" json:"type_id,omitempty"`
+	CategoryID *string  `bson:"category_id,omitempty" json:"category_id,omitempty"`
+	Colors     *[]string `bson:"colors,omitempty" json:"colors,omitempty"`
 }
 
 func NewVehicleModel() *VehicleModel {
@@ -57,4 +64,7 @@ func (v *VehicleModel) Bind(req *requests.CreateVehicleModelRequest) {
 	v.Variant = req.Variant
 	v.FuelType = req.FuelType
 	v.BasePrice = req.BasePrice
+	v.TypeID = req.TypeID
+	v.CategoryID = req.CategoryID
+	v.Colors = req.Colors
 }

@@ -31,7 +31,8 @@ type UpdateCustomerRequest struct {
 	Pincode       *string               `json:"pincode,omitempty" form:"pincode"`
 	Photo         *multipart.FileHeader `json:"photo,omitempty" form:"photo"`
 	AadhaarCardNo *string               `json:"aadhaar_card_no,omitempty" form:"aadhaar_card_no"`
-	PanCardNo     *string               `json:"pan_card_no,omitempty" form:"pan_card_no"`
+	PanCardNo     *string                 `json:"pan_card_no,omitempty" form:"pan_card_no"`
+	Documents     []*multipart.FileHeader `json:"documents,omitempty" form:"documents"`
 }
 
 func NewCreateCustomerRequest() *CreateCustomerRequest {

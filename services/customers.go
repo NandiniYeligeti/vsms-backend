@@ -171,12 +171,25 @@ func (s *customerService) Update(
 		updateFields["pan_card_no"] = *req.PanCardNo
 	}
 
-	updateFields["updated_at"] = time.Now()
-
 	filter := bson.M{"entity_id": id}
 	if oid, err := primitive.ObjectIDFromHex(id); err == nil {
 		filter = bson.M{"_id": oid}
 	}
+
+	// Handle Documents appending
+	if len(req.Documents) > 0 {
+		var existing models.Customer
+		err := collection.FindOne(ctx, filter).Decode(&existing)
+		if err == nil {
+			docList := existing.Documents
+			for _, d := range req.Documents {
+				docList = append(docList, d.Filename)
+			}
+			updateFields["documents"] = docList
+		}
+	}
+
+	updateFields["updated_at"] = time.Now()
 
 	result, err := collection.UpdateOne(
 		ctx,

@@ -147,6 +147,15 @@ func (s *vehicleModelService) Update(
 	if req.BasePrice != nil {
 		updateFields["base_price"] = *req.BasePrice
 	}
+	if req.TypeID != nil {
+		updateFields["type_id"] = *req.TypeID
+	}
+	if req.CategoryID != nil {
+		updateFields["category_id"] = *req.CategoryID
+	}
+	if req.Colors != nil {
+		updateFields["colors"] = *req.Colors
+	}
 
 	updateFields["updated_at"] = time.Now()
 

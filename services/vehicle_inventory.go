@@ -159,6 +159,18 @@ func (s *vehicleInventoryService) Update(
 	if req.PurchaseDate != nil {
 		updateFields["purchase_date"] = *req.PurchaseDate
 	}
+	if req.Accessories != nil {
+		updateFields["accessories"] = *req.Accessories
+	}
+	if req.TotalPrice != nil {
+		updateFields["total_price"] = *req.TotalPrice
+	}
+	if req.Status != nil {
+		updateFields["status"] = *req.Status
+	}
+	if req.SellingPrice != nil {
+		updateFields["selling_price"] = *req.SellingPrice
+	}
 
 	updateFields["updated_at"] = time.Now()
 

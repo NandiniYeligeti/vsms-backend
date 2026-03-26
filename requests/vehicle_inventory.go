@@ -14,6 +14,10 @@ type CreateVehicleInventoryRequest struct {
 	ChassisNumber  string    `json:"chassis_number" binding:"required"`
 	EngineNumber   string    `json:"engine_number" binding:"required"`
 	PurchaseDate   time.Time `json:"purchase_date" binding:"required"`
+	Accessories    []string  `json:"accessories"`
+	TotalPrice     float64   `json:"total_price"`
+	Status         string    `json:"status"`
+	SellingPrice   float64   `json:"selling_price"`
 }
 
 type UpdateVehicleInventoryRequest struct {
@@ -21,6 +25,10 @@ type UpdateVehicleInventoryRequest struct {
 	ChassisNumber *string    `json:"chassis_number,omitempty"`
 	EngineNumber  *string    `json:"engine_number,omitempty"`
 	PurchaseDate  *time.Time `json:"purchase_date,omitempty"`
+	Accessories   *[]string  `json:"accessories,omitempty"`
+	TotalPrice    *float64   `json:"total_price,omitempty"`
+	Status         *string    `json:"status,omitempty"`
+	SellingPrice   *float64   `json:"selling_price,omitempty"`
 }
 
 func NewCreateVehicleInventoryRequest() *CreateVehicleInventoryRequest {

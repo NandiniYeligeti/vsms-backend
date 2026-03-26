@@ -24,7 +24,8 @@ type Customer struct {
 	Pincode       string `bson:"pincode" json:"pincode"`
 	Photo         string `bson:"photo" json:"photo"`
 	AadhaarCardNo string `bson:"aadhaar_card_no" json:"aadhaar_card_no"`
-	PanCardNo     string `bson:"pan_card_no" json:"pan_card_no"`
+	PanCardNo     string   `bson:"pan_card_no" json:"pan_card_no"`
+	Documents     []string `bson:"documents" json:"documents"`
 
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 
@@ -53,7 +54,8 @@ type UpdateCustomer struct {
 	Pincode       *string `bson:"pincode,omitempty" json:"pincode,omitempty"`
 	Photo         *string `bson:"photo,omitempty" json:"photo,omitempty"`
 	AadhaarCardNo *string `bson:"aadhaar_card_no,omitempty" json:"aadhaar_card_no,omitempty"`
-	PanCardNo     *string `bson:"pan_card_no,omitempty" json:"pan_card_no,omitempty"`
+	PanCardNo     *string   `bson:"pan_card_no,omitempty" json:"pan_card_no,omitempty"`
+	Documents     *[]string `bson:"documents,omitempty" json:"documents,omitempty"`
 }
 
 func NewCustomer() *Customer {

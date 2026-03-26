@@ -45,6 +45,25 @@ func UpdateCustomer(c *gin.Context) {
 		return
 	}
 
+	// Handle Photo upload if present
+	photoFile, err := c.FormFile("photo")
+	if err == nil {
+		if err := c.SaveUploadedFile(photoFile, "uploads/"+photoFile.Filename); err == nil {
+			req.Photo = photoFile
+		}
+	}
+
+	// Handle multiple Documents upload
+	form, _ := c.MultipartForm()
+	files := form.File["documents"]
+	for _, file := range files {
+		if err := c.SaveUploadedFile(file, "uploads/"+file.Filename); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save document " + file.Filename})
+			return
+		}
+		req.Documents = append(req.Documents, file)
+	}
+
 	// Initialize service
 	service := services.NewCustomerService()
 
