@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"vehiclesales/models"
@@ -71,8 +72,11 @@ func (s *vehicleInventoryService) Create(
 	inventory.Brand = vehicleModel.Brand
 	inventory.Model = vehicleModel.Model
 	inventory.Variant = vehicleModel.Variant
-	inventory.FuelType = vehicleModel.FuelType
+	inventory.FuelType = strings.Join(vehicleModel.FuelType, ", ")
 	inventory.BasePrice = vehicleModel.BasePrice
+	inventory.IncentiveType = vehicleModel.IncentiveType
+	inventory.IncentiveValue = vehicleModel.IncentiveValue
+	inventory.ColorCount = vehicleModel.ColorCount
 
 	_, err = inventoryCollection.InsertOne(ctx, inventory)
 	if err != nil {
@@ -158,6 +162,15 @@ func (s *vehicleInventoryService) Update(
 	}
 	if req.PurchaseDate != nil {
 		updateFields["purchase_date"] = *req.PurchaseDate
+	}
+	if req.MfgYear != nil {
+		updateFields["mfg_year"] = *req.MfgYear
+	}
+	if req.InventoryDate != nil {
+		updateFields["inventory_date"] = *req.InventoryDate
+	}
+	if req.PurchasePrice != nil {
+		updateFields["purchase_price"] = *req.PurchasePrice
 	}
 	if req.Accessories != nil {
 		updateFields["accessories"] = *req.Accessories

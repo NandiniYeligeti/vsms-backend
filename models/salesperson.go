@@ -19,10 +19,6 @@ type Salesperson struct {
 	MobileNumber string `bson:"mobile_number" json:"mobile_number"`
 	Email        string `bson:"email" json:"email"`
 
-	CommissionType  string  `bson:"commission_type" json:"commissionType"`
-	CommissionValue float64 `bson:"commission_value" json:"commissionValue"`
-	Vehicle         string  `bson:"vehicle,omitempty" json:"vehicle,omitempty"`
-
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
@@ -35,9 +31,6 @@ type UpdateSalesperson struct {
 	Email        *string `bson:"email,omitempty" json:"email,omitempty"`
 	BranchID     *string `bson:"branch_id,omitempty" json:"branch_id,omitempty"`
 
-	CommissionType  *string  `bson:"commission_type,omitempty" json:"commissionType,omitempty"`
-	CommissionValue *float64 `bson:"commission_value,omitempty" json:"commissionValue,omitempty"`
-	Vehicle         *string  `bson:"vehicle,omitempty" json:"vehicle,omitempty"`
 }
 
 func NewSalesperson() *Salesperson {
@@ -60,8 +53,4 @@ func (s *Salesperson) Bind(req *requests.CreateSalespersonRequest) {
 	s.FullName = req.FullName
 	s.MobileNumber = req.MobileNumber
 	s.Email = req.Email
-
-	s.CommissionType = req.CommissionType
-	s.CommissionValue = req.CommissionValue
-	s.Vehicle = req.Vehicle
 }

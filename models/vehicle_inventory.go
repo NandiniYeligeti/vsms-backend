@@ -23,6 +23,10 @@ type VehicleInventory struct {
 	FuelType  string  `bson:"fuel_type" json:"fuel_type"`
 	BasePrice float64 `bson:"base_price" json:"base_price"`
 
+	IncentiveType  string  `bson:"incentive_type" json:"incentive_type"`
+	IncentiveValue float64 `bson:"incentive_value" json:"incentive_value"`
+	ColorCount     int     `bson:"color_count" json:"color_count"`
+
 	Accessories []string `bson:"accessories" json:"accessories"`
 	TotalPrice  float64  `bson:"total_price" json:"total_price"`
 	SellingPrice float64 `bson:"selling_price" json:"selling_price"`
@@ -31,6 +35,9 @@ type VehicleInventory struct {
 	ChassisNumber string    `bson:"chassis_number" json:"chassis_number"`
 	EngineNumber  string    `bson:"engine_number" json:"engine_number"`
 	PurchaseDate  time.Time `bson:"purchase_date" json:"purchase_date"`
+	MfgYear       string    `bson:"mfg_year" json:"mfg_year"`
+	InventoryDate time.Time `bson:"inventory_date" json:"inventory_date"`
+	PurchasePrice float64   `bson:"purchase_price" json:"purchase_price"`
 
 	Status string `bson:"status" json:"status"`
 
@@ -45,6 +52,9 @@ type UpdateVehicleInventory struct {
 	ChassisNumber *string    `bson:"chassis_number,omitempty" json:"chassis_number,omitempty"`
 	EngineNumber  *string    `bson:"engine_number,omitempty" json:"engine_number,omitempty"`
 	PurchaseDate  *time.Time `bson:"purchase_date,omitempty" json:"purchase_date,omitempty"`
+	MfgYear       *string    `bson:"mfg_year,omitempty" json:"mfg_year,omitempty"`
+	InventoryDate *time.Time `bson:"inventory_date,omitempty" json:"inventory_date,omitempty"`
+	PurchasePrice *float64   `bson:"purchase_price,omitempty" json:"purchase_price,omitempty"`
 	SellingPrice  *float64   `bson:"selling_price,omitempty" json:"selling_price,omitempty"`
 }
 
@@ -71,6 +81,9 @@ func (v *VehicleInventory) Bind(req *requests.CreateVehicleInventoryRequest) {
 	v.ChassisNumber = req.ChassisNumber
 	v.EngineNumber = req.EngineNumber
 	v.PurchaseDate = req.PurchaseDate
+	v.MfgYear = req.MfgYear
+	v.InventoryDate = req.InventoryDate
+	v.PurchasePrice = req.PurchasePrice
 	v.Accessories = req.Accessories
 	v.TotalPrice = req.TotalPrice
 	if req.Status != "" {

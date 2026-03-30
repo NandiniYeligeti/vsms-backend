@@ -47,9 +47,10 @@ func (s *vehicleModelService) Create(
 	collection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(VehicleModelCollection)
 
 	duplicateFilter := bson.M{
-		"brand":   req.Brand,
-		"model":   req.Model,
-		"variant": req.Variant,
+		"brand":      req.Brand,
+		"model":      req.Model,
+		"variant":    req.Variant,
+		"is_deleted": bson.M{"$ne": true},
 	}
 
 	if count, _ := collection.CountDocuments(ctx, duplicateFilter); count > 0 {
@@ -155,6 +156,15 @@ func (s *vehicleModelService) Update(
 	}
 	if req.Colors != nil {
 		updateFields["colors"] = *req.Colors
+	}
+	if req.IncentiveType != nil {
+		updateFields["incentive_type"] = *req.IncentiveType
+	}
+	if req.IncentiveValue != nil {
+		updateFields["incentive_value"] = *req.IncentiveValue
+	}
+	if req.ColorCount != nil {
+		updateFields["color_count"] = *req.ColorCount
 	}
 
 	updateFields["updated_at"] = time.Now()

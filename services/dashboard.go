@@ -8,6 +8,7 @@ import (
 	"vehiclesales/storage"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -27,16 +28,16 @@ func (s *dashboardService) GetStats(ctx context.Context, companyCode string) (*m
 
 	stats := &models.DashboardStats{}
 
-	// 1. Total Vehicles In Stock (Available for sale)
+	// 1. Total Vehicles In Stock (Strictly 'Available')
 	stockCount, _ := database.Collection(VehicleInventoryCollection).CountDocuments(ctx, bson.M{
-		"status":     bson.M{"$ne": "Sold"},
+		"status":     bson.M{"$regex": primitive.Regex{Pattern: "^available$", Options: "i"}},
 		"is_deleted": false,
 	})
 	stats.TotalVehiclesInStock = stockCount
 
-	// 2. Total Vehicles Sold
+	// 2. Total Vehicles Sold (Strictly 'Sold')
 	soldCount, _ := database.Collection(VehicleInventoryCollection).CountDocuments(ctx, bson.M{
-		"status":     "Sold",
+		"status":     bson.M{"$regex": primitive.Regex{Pattern: "^sold$", Options: "i"}},
 		"is_deleted": false,
 	})
 	stats.TotalVehiclesSold = soldCount

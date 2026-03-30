@@ -84,6 +84,30 @@ func (s *paymentService) Create(
 
 	if newBalance == 0 {
 		updateFields["status"] = "fully_paid"
+		
+		// Load vehicle to get incentive rule
+		var vehicle models.VehicleInventory
+		vehicleCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("vehicle_inventory")
+		err := vehicleCollection.FindOne(ctx, bson.M{"entity_id": order.VehicleInventoryID}).Decode(&vehicle)
+		
+		incentiveAmount := 0.0
+		if err == nil {
+			if vehicle.IncentiveType == "percentage" {
+				incentiveAmount = (order.TotalAmount * vehicle.IncentiveValue) / 100.0
+			} else {
+				incentiveAmount = vehicle.IncentiveValue
+			}
+		}
+		
+		updateFields["incentive_amount"] = incentiveAmount
+		updateFields["incentive_status"] = "Pending"
+		updateFields["incentive_logs"] = []models.IncentiveLog{
+			{
+				Action:      "Generated",
+				Description: fmt.Sprintf("Incentive of ₹%.2f generated upon full payment.", incentiveAmount),
+				Timestamp:   time.Now(),
+			},
+		}
 	}
 
 	_, _ = salesCollection.UpdateOne(

@@ -208,6 +208,7 @@ func (s *salesOrderService) Update(
 	collection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(SalesOrderCollection)
 
 	updateFields := bson.M{}
+	pushFields := bson.M{}
 
 	if req.DeliveryDate != nil {
 		updateFields["delivery_date"] = *req.DeliveryDate
@@ -224,6 +225,26 @@ func (s *salesOrderService) Update(
 	if req.Status != nil {
 		updateFields["status"] = *req.Status
 	}
+	if req.IncentiveAmount != nil {
+		updateFields["incentive_amount"] = *req.IncentiveAmount
+		
+		pushFields["incentive_logs"] = models.IncentiveLog{
+			Action:      "Edited",
+			Description: fmt.Sprintf("Incentive amount adjusted to ₹%.2f", *req.IncentiveAmount),
+			Timestamp:   time.Now(),
+		}
+	}
+	if req.IncentiveStatus != nil {
+		updateFields["incentive_status"] = *req.IncentiveStatus
+		if *req.IncentiveStatus == "Paid" {
+			updateFields["incentive_date"] = time.Now()
+			pushFields["incentive_logs"] = models.IncentiveLog{
+				Action:      "Paid",
+				Description: "Incentive marked as PAID",
+				Timestamp:   time.Now(),
+			}
+		}
+	}
 
 	updateFields["updated_at"] = time.Now()
 
@@ -232,10 +253,15 @@ func (s *salesOrderService) Update(
 		filter = bson.M{"_id": oid}
 	}
 
+	updateDoc := bson.M{"$set": updateFields}
+	if len(pushFields) > 0 {
+		updateDoc["$push"] = pushFields
+	}
+
 	result, err := collection.UpdateOne(
 		ctx,
 		filter,
-		bson.M{"$set": updateFields},
+		updateDoc,
 	)
 
 	if err != nil {

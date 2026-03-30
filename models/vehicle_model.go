@@ -18,12 +18,16 @@ type VehicleModel struct {
 	Brand     string  `bson:"brand" json:"brand"`
 	Model     string  `bson:"model" json:"model"`
 	Variant   string  `bson:"variant" json:"variant"`
-	FuelType  string  `bson:"fuel_type" json:"fuel_type"`
-	BasePrice float64 `bson:"base_price" json:"base_price"`
+	FuelType  []string `bson:"fuel_type" json:"fuel_type"`
+	BasePrice float64  `bson:"base_price" json:"base_price"`
 
-	TypeID     string `bson:"type_id" json:"type_id"`
-	CategoryID string `bson:"category_id" json:"category_id"`
+	TypeID     string   `bson:"type_id" json:"type_id"`
+	CategoryID string   `bson:"category_id" json:"category_id"`
 	Colors     []string `bson:"colors" json:"colors"`
+
+	IncentiveType  string  `bson:"incentive_type" json:"incentive_type"`
+	IncentiveValue float64 `bson:"incentive_value" json:"incentive_value"`
+	ColorCount     int     `bson:"color_count" json:"color_count"`
 
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 
@@ -35,11 +39,15 @@ type UpdateVehicleModel struct {
 	Brand      *string  `bson:"brand,omitempty" json:"brand,omitempty"`
 	Model      *string  `bson:"model,omitempty" json:"model,omitempty"`
 	Variant    *string  `bson:"variant,omitempty" json:"variant,omitempty"`
-	FuelType   *string  `bson:"fuel_type,omitempty" json:"fuel_type,omitempty"`
-	BasePrice  *float64 `bson:"base_price,omitempty" json:"base_price,omitempty"`
-	TypeID     *string  `bson:"type_id,omitempty" json:"type_id,omitempty"`
-	CategoryID *string  `bson:"category_id,omitempty" json:"category_id,omitempty"`
+	FuelType   *[]string `bson:"fuel_type,omitempty" json:"fuel_type,omitempty"`
+	BasePrice  *float64  `bson:"base_price,omitempty" json:"base_price,omitempty"`
+	TypeID     *string   `bson:"type_id,omitempty" json:"type_id,omitempty"`
+	CategoryID *string   `bson:"category_id,omitempty" json:"category_id,omitempty"`
 	Colors     *[]string `bson:"colors,omitempty" json:"colors,omitempty"`
+
+	IncentiveType  *string  `bson:"incentive_type,omitempty" json:"incentive_type,omitempty"`
+	IncentiveValue *float64 `bson:"incentive_value,omitempty" json:"incentive_value,omitempty"`
+	ColorCount     *int     `bson:"color_count,omitempty" json:"color_count,omitempty"`
 }
 
 func NewVehicleModel() *VehicleModel {
@@ -67,4 +75,7 @@ func (v *VehicleModel) Bind(req *requests.CreateVehicleModelRequest) {
 	v.TypeID = req.TypeID
 	v.CategoryID = req.CategoryID
 	v.Colors = req.Colors
+	v.IncentiveType = req.IncentiveType
+	v.IncentiveValue = req.IncentiveValue
+	v.ColorCount = req.ColorCount
 }

@@ -158,18 +158,6 @@ func (s *salespersonService) Update(
 		updateFields["branch_id"] = *req.BranchID
 	}
 
-	if req.CommissionType != nil {
-		updateFields["commission_type"] = *req.CommissionType
-	}
-
-	if req.CommissionValue != nil {
-		updateFields["commission_value"] = *req.CommissionValue
-	}
-
-	if req.Vehicle != nil {
-		updateFields["vehicle"] = *req.Vehicle
-	}
-
 	updateFields["updated_at"] = time.Now()
 
 	filter := bson.M{"entity_id": id}

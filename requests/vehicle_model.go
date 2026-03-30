@@ -11,10 +11,14 @@ type CreateVehicleModelRequest struct {
 	CategoryID string  `json:"category_id" binding:"required"`
 	Brand      string  `json:"brand" binding:"required"`
 	Model      string  `json:"model" binding:"required"`
-	Variant    string  `json:"variant" binding:"required"`
-	FuelType   string  `json:"fuel_type" binding:"required"`
+	Variant    string   `json:"variant" binding:"required"`
+	FuelType   []string `json:"fuel_type" binding:"required"`
 	BasePrice  float64  `json:"base_price" binding:"required"`
 	Colors     []string `json:"colors"`
+
+	IncentiveType  string  `json:"incentive_type"`
+	IncentiveValue float64 `json:"incentive_value"`
+	ColorCount     int     `json:"color_count"`
 }
 
 type UpdateVehicleModelRequest struct {
@@ -22,10 +26,14 @@ type UpdateVehicleModelRequest struct {
 	CategoryID *string  `json:"category_id,omitempty"`
 	Brand      *string  `json:"brand,omitempty"`
 	Model      *string  `json:"model,omitempty"`
-	Variant    *string  `json:"variant,omitempty"`
-	FuelType   *string  `json:"fuel_type,omitempty"`
+	Variant    *string   `json:"variant,omitempty"`
+	FuelType   *[]string `json:"fuel_type,omitempty"`
 	BasePrice  *float64  `json:"base_price,omitempty"`
 	Colors     *[]string `json:"colors,omitempty"`
+
+	IncentiveType  *string  `json:"incentive_type,omitempty"`
+	IncentiveValue *float64 `json:"incentive_value,omitempty"`
+	ColorCount     *int     `json:"color_count,omitempty"`
 }
 
 func NewCreateVehicleModelRequest() *CreateVehicleModelRequest {

@@ -7,6 +7,12 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+type IncentiveLog struct {
+	Action      string    `bson:"action" json:"action"`             // Generated, Edited, Paid
+	Description string    `bson:"description" json:"description"`
+	Timestamp   time.Time `bson:"timestamp" json:"timestamp"`
+}
+
 type SalesOrder struct {
 	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	EntityID       string            `bson:"entity_id" json:"entity_id"`
@@ -48,6 +54,12 @@ type SalesOrder struct {
 
 	Status string `bson:"status" json:"status"`
 
+	IncentiveAmount float64   `bson:"incentive_amount" json:"incentive_amount"`
+	IncentiveStatus string    `bson:"incentive_status" json:"incentive_status"`
+	IncentiveDate   time.Time `bson:"incentive_date" json:"incentive_date"`
+
+	IncentiveLogs []IncentiveLog `bson:"incentive_logs" json:"incentive_logs"`
+
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
@@ -60,6 +72,8 @@ type UpdateSalesOrder struct {
 	LoanAmount   *float64   `bson:"loan_amount,omitempty" json:"loan_amount,omitempty"`
 	BalanceAmount *float64  `bson:"balance_amount,omitempty" json:"balance_amount,omitempty"`
 	Status       *string    `bson:"status,omitempty" json:"status,omitempty"`
+	IncentiveAmount *float64 `bson:"incentive_amount,omitempty" json:"incentive_amount,omitempty"`
+	IncentiveStatus *string  `bson:"incentive_status,omitempty" json:"incentive_status,omitempty"`
 }
 
 func NewSalesOrder() *SalesOrder {

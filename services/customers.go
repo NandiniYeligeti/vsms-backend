@@ -301,6 +301,30 @@ func (s *customerService) GetLedger(
 			VehicleName: vehicleStr,
 			VehicleID:   s.EntityID,
 		})
+
+		if s.DownPayment > 0 {
+			entries = append(entries, &models.LedgerEntry{
+				ID:          s.EntityID + "_dp",
+				Date:        s.SaleDate,
+				Description: "Initial Down Payment",
+				Debit:       0,
+				Credit:      s.DownPayment,
+				VehicleName: vehicleStr,
+				VehicleID:   s.EntityID,
+			})
+		}
+
+		if s.LoanAmount > 0 {
+			entries = append(entries, &models.LedgerEntry{
+				ID:          s.EntityID + "_loan",
+				Date:        s.SaleDate,
+				Description: "Loan Financed Amount",
+				Debit:       0,
+				Credit:      s.LoanAmount,
+				VehicleName: vehicleStr,
+				VehicleID:   s.EntityID,
+			})
+		}
 	}
 
 	// Add Payments as Credits

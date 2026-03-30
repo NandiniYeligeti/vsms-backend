@@ -34,6 +34,8 @@ type UpdateSalesOrderRequest struct {
 	LoanAmount    *float64   `json:"loan_amount,omitempty"`
 	BalanceAmount *float64   `json:"balance_amount,omitempty"`
 	Status        *string    `json:"status,omitempty"`
+	IncentiveAmount *float64 `json:"incentive_amount,omitempty"`
+	IncentiveStatus *string  `json:"incentive_status,omitempty"`
 }
 
 func NewCreateSalesOrderRequest() *CreateSalesOrderRequest {
