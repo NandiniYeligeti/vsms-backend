@@ -141,4 +141,12 @@ func Routes(api *gin.RouterGroup) {
 		vehicleFeatures.DELETE("/accessory/:company_code/:id", DeleteVehicleAccessory)
 	}
 
+	// ================= SETTINGS =================
+	settings := api.Group("/settings")
+	settings.Use(middleware.AuthMiddleware())
+	{
+		settings.GET("/:company_code", GetCompanySettings)
+		settings.PUT("/:company_code", UpdateCompanySettings)
+	}
+
 }

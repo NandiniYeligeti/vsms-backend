@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"vehiclesales/models"
@@ -83,7 +84,7 @@ func (s *paymentService) Create(
 	}
 
 	if newBalance == 0 {
-		updateFields["status"] = "fully_paid"
+		updateFields["status"] = "Fully Paid"
 		
 		// Load vehicle to get incentive rule
 		var vehicle models.VehicleInventory
@@ -92,9 +93,9 @@ func (s *paymentService) Create(
 		
 		incentiveAmount := 0.0
 		if err == nil {
-			if vehicle.IncentiveType == "percentage" {
-				incentiveAmount = (order.TotalAmount * vehicle.IncentiveValue) / 100.0
-			} else {
+			if strings.EqualFold(vehicle.IncentiveType, "Percentage") {
+				incentiveAmount = (order.VehiclePrice * vehicle.IncentiveValue) / 100.0
+			} else if strings.EqualFold(vehicle.IncentiveType, "Fixed") {
 				incentiveAmount = vehicle.IncentiveValue
 			}
 		}

@@ -36,6 +36,8 @@ type UpdateSalesOrderRequest struct {
 	Status        *string    `json:"status,omitempty"`
 	IncentiveAmount *float64 `json:"incentive_amount,omitempty"`
 	IncentiveStatus *string  `json:"incentive_status,omitempty"`
+	IncentivePaymentMethod   *string `json:"incentive_payment_method,omitempty"`
+	IncentiveReferenceNumber *string `json:"incentive_reference_number,omitempty"`
 }
 
 func NewCreateSalesOrderRequest() *CreateSalesOrderRequest {

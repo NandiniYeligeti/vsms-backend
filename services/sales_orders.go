@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"vehiclesales/models"
@@ -52,6 +53,7 @@ func (s *salesOrderService) Create(
 	salesCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(SalesOrderCollection)
 	vehicleCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(VehicleInventoryCollection)
 	customerCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(CustomerCollection)
+	salespersonCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("salespersons")
 
 	// 1. Check vehicle exists
 	var vehicle models.VehicleInventory
@@ -82,6 +84,18 @@ func (s *salesOrderService) Create(
 		return nil, errors.New("customer not found")
 	}
 
+	// 3.5 Fetch Salesperson
+	var salesperson models.Salesperson
+	spFilter := bson.M{"entity_id": req.SalespersonID, "is_deleted": bson.M{"$ne": true}}
+	if oid, err := primitive.ObjectIDFromHex(req.SalespersonID); err == nil {
+		spFilter = bson.M{"_id": oid, "is_deleted": bson.M{"$ne": true}}
+	}
+	err = salespersonCollection.FindOne(ctx, spFilter).Decode(&salesperson)
+	if err == mongo.ErrNoDocuments {
+		// return nil, errors.New("salesperson not found")
+		fmt.Println("Salesperson not found for ID:", req.SalespersonID)
+	}
+
 	// 4. Create sales order object
 	order := models.NewSalesOrder()
 	order.Bind(req)
@@ -99,6 +113,9 @@ func (s *salesOrderService) Create(
 	order.ChassisNumber = vehicle.ChassisNumber
 	order.EngineNumber = vehicle.EngineNumber
 
+	// Denormalize Salesperson Name (for incentive management)
+	order.SalespersonName = salesperson.FullName
+
 	// 6. Auto calculation
 	order.TotalAmount =
 		req.VehiclePrice +
@@ -110,6 +127,27 @@ func (s *salesOrderService) Create(
 		order.TotalAmount -
 			req.DownPayment -
 			req.LoanAmount
+
+	// 6.5 Set Status and Generate Incentive if Fully Paid
+	if order.BalanceAmount <= 0 {
+		order.Status = "Fully Paid"
+
+		// Calculate Incentive (Case-Insensitive)
+		if strings.EqualFold(vehicle.IncentiveType, "Fixed") {
+			order.IncentiveAmount = vehicle.IncentiveValue
+		} else if strings.EqualFold(vehicle.IncentiveType, "Percentage") {
+			order.IncentiveAmount = (order.VehiclePrice * vehicle.IncentiveValue) / 100
+		}
+
+		if order.IncentiveAmount > 0 {
+			order.IncentiveStatus = "Pending"
+			order.IncentiveLogs = append(order.IncentiveLogs, models.IncentiveLog{
+				Action:      "Generated",
+				Description: fmt.Sprintf("Auto-generated incentive of ₹%.2f (Status: Fully Paid)", order.IncentiveAmount),
+				Timestamp:   time.Now(),
+			})
+		}
+	}
 
 	// 7. Insert order
 	_, err = salesCollection.InsertOne(ctx, order)
@@ -238,11 +276,39 @@ func (s *salesOrderService) Update(
 		updateFields["incentive_status"] = *req.IncentiveStatus
 		if *req.IncentiveStatus == "Paid" {
 			updateFields["incentive_date"] = time.Now()
+			
+			paymentMethod := ""
+			if req.IncentivePaymentMethod != nil {
+				paymentMethod = *req.IncentivePaymentMethod
+				updateFields["incentive_payment_method"] = paymentMethod
+			}
+			
+			refNumber := ""
+			if req.IncentiveReferenceNumber != nil {
+				refNumber = *req.IncentiveReferenceNumber
+				updateFields["incentive_reference_number"] = refNumber
+			}
+
+			desc := "Incentive marked as PAID"
+			if paymentMethod != "" {
+				desc = fmt.Sprintf("Incentive PAID via %s", paymentMethod)
+				if refNumber != "" {
+					desc += fmt.Sprintf(" (Ref: %s)", refNumber)
+				}
+			}
+
 			pushFields["incentive_logs"] = models.IncentiveLog{
 				Action:      "Paid",
-				Description: "Incentive marked as PAID",
+				Description: desc,
 				Timestamp:   time.Now(),
 			}
+		}
+	}
+
+	// Update Status based on BalanceAmount if provided
+	if req.BalanceAmount != nil {
+		if *req.BalanceAmount <= 0 {
+			updateFields["status"] = "Fully Paid"
 		}
 	}
 

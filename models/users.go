@@ -14,6 +14,7 @@ type User struct {
 	Role        string             `bson:"role" json:"role"`
 	CompanyCode string             `bson:"company_code" json:"company_code"`
 	CompanyName string             `bson:"company_name" json:"company_name"`
+	LogoURL     string             `bson:"logo_url" json:"logo_url"`
 	IsDeleted   bool               `bson:"is_deleted" json:"is_deleted"`
 	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`

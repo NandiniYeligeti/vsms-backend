@@ -38,6 +38,7 @@ type SalesOrder struct {
 	EngineNumber  string  `bson:"engine_number" json:"engine_number"`
 
 	SalespersonID string `bson:"salesperson_id" json:"salesperson_id"`
+	SalespersonName string `bson:"salesperson_name" json:"salesperson_name"`
 
 	SaleDate     time.Time `bson:"sale_date" json:"sale_date"`
 	DeliveryDate time.Time `bson:"delivery_date" json:"delivery_date"`
@@ -58,6 +59,9 @@ type SalesOrder struct {
 	IncentiveStatus string    `bson:"incentive_status" json:"incentive_status"`
 	IncentiveDate   time.Time `bson:"incentive_date" json:"incentive_date"`
 
+	IncentivePaymentMethod   string `bson:"incentive_payment_method" json:"incentive_payment_method"`
+	IncentiveReferenceNumber string `bson:"incentive_reference_number" json:"incentive_reference_number"`
+
 	IncentiveLogs []IncentiveLog `bson:"incentive_logs" json:"incentive_logs"`
 
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
@@ -74,6 +78,8 @@ type UpdateSalesOrder struct {
 	Status       *string    `bson:"status,omitempty" json:"status,omitempty"`
 	IncentiveAmount *float64 `bson:"incentive_amount,omitempty" json:"incentive_amount,omitempty"`
 	IncentiveStatus *string  `bson:"incentive_status,omitempty" json:"incentive_status,omitempty"`
+	IncentivePaymentMethod   *string `bson:"incentive_payment_method,omitempty" json:"incentive_payment_method,omitempty"`
+	IncentiveReferenceNumber *string `bson:"incentive_reference_number,omitempty" json:"incentive_reference_number,omitempty"`
 }
 
 func NewSalesOrder() *SalesOrder {
