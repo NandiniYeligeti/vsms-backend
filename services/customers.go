@@ -300,6 +300,7 @@ func (s *customerService) GetLedger(
 			Credit:      0,
 			VehicleName: vehicleStr,
 			VehicleID:   s.EntityID,
+			SalesOrderCode: s.SalesOrderCode,
 		})
 
 		if s.DownPayment > 0 {
@@ -311,6 +312,7 @@ func (s *customerService) GetLedger(
 				Credit:      s.DownPayment,
 				VehicleName: vehicleStr,
 				VehicleID:   s.EntityID,
+				SalesOrderCode: s.SalesOrderCode,
 			})
 		}
 
@@ -323,6 +325,7 @@ func (s *customerService) GetLedger(
 				Credit:      s.LoanAmount,
 				VehicleName: vehicleStr,
 				VehicleID:   s.EntityID,
+				SalesOrderCode: s.SalesOrderCode,
 			})
 		}
 	}
@@ -354,6 +357,14 @@ func (s *customerService) GetLedger(
 			Credit:      p.PaymentAmount,
 			VehicleName: vName,
 			VehicleID:   vID,
+			SalesOrderCode: func() string{
+				for _, s := range sales {
+					if s.EntityID == vID || s.ID.Hex() == vID {
+						return s.SalesOrderCode
+					}
+				}
+				return ""
+			}(),
 		})
 	}
 

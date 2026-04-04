@@ -96,9 +96,29 @@ func (s *salesOrderService) Create(
 		fmt.Println("Salesperson not found for ID:", req.SalespersonID)
 	}
 
-	// 4. Create sales order object
+	// 4. Fetch company settings for numbering config
+	companySettingsService := NewCompanySettingsService()
+	companySettings, _ := companySettingsService.Get(ctx, companyCode)
+
+	// 5. Create sales order object with configurable code
 	order := models.NewSalesOrder()
 	order.Bind(req)
+
+	// Generate sales order code using prefix + running number + suffix
+	salesPrefix := "SO"
+	salesSuffix := ""
+	if companySettings != nil {
+		if companySettings.SalesPrefix != "" {
+			salesPrefix = companySettings.SalesPrefix
+		}
+		salesSuffix = companySettings.SalesSuffix
+	}
+	runningNum := order.ID.Hex()[18:24]
+	if salesSuffix != "" {
+		order.SalesOrderCode = salesPrefix + runningNum + salesSuffix
+	} else {
+		order.SalesOrderCode = salesPrefix + runningNum
+	}
 
 	// 5. Populate denormalized details
 	order.CustomerName = customer.CustomerName
@@ -121,7 +141,8 @@ func (s *salesOrderService) Create(
 		req.VehiclePrice +
 			req.RegistrationCharges +
 			req.Insurance +
-			req.Accessories
+			req.Accessories -
+			req.DiscountAmount
 
 	order.BalanceAmount =
 		order.TotalAmount -

@@ -18,6 +18,8 @@ type CreateLoanRequest struct {
 	EMIAmount      float64 `json:"emi_amount" binding:"required"`
 	Status         string  `json:"status" binding:"omitempty"`
 	AccountNumber  string  `json:"account_number" binding:"omitempty"`
+	BankPerson     string  `json:"bank_person" binding:"omitempty"`
+	Mobile         string  `json:"mobile" binding:"omitempty"`
 }
 
 type UpdateLoanRequest struct {
@@ -28,6 +30,8 @@ type UpdateLoanRequest struct {
 	EMIAmount       *float64   `json:"emi_amount,omitempty"`
 	Status          *string    `json:"status,omitempty"`
 	AccountNumber   *string    `json:"account_number,omitempty"`
+	BankPerson      *string    `json:"bank_person,omitempty"`
+	Mobile          *string    `json:"mobile,omitempty"`
 	DisbursementDate *time.Time `json:"disbursement_date,omitempty"`
 }
 

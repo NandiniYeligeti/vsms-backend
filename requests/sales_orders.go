@@ -21,11 +21,18 @@ type CreateSalesOrderRequest struct {
 	RegistrationCharges float64 `json:"registration_charges"`
 	Insurance           float64 `json:"insurance"`
 	Accessories         float64 `json:"accessories"`
+	DiscountType        string  `json:"discount_type"`
+	DiscountValue       float64 `json:"discount_value"`
+	DiscountReason      string  `json:"discount_reason"`
+	DiscountAmount      float64 `json:"discount_amount"`
 
 	TotalAmount   float64 `json:"total_amount"`
 	DownPayment   float64 `json:"down_payment"`
 	LoanAmount    float64 `json:"loan_amount"`
 	BalanceAmount float64 `json:"balance_amount"`
+
+	PaymentType string `json:"payment_type"`
+	PaymentMode string `json:"payment_mode"`
 }
 
 type UpdateSalesOrderRequest struct {

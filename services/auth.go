@@ -29,6 +29,7 @@ type AuthService interface {
 	GetCompanies(ctx context.Context) ([]*models.User, error)
 	CreateUser(ctx context.Context, req *requests.CreateUserRequest, companyCode string, companyName string) (*models.User, error)
 	GetUsers(ctx context.Context, companyCode string) ([]*models.User, error)
+	UpdateUserMenus(ctx context.Context, userID string, menus []string) error
 	DeleteUser(ctx context.Context, userID string) error
 }
 
@@ -183,6 +184,7 @@ func (s *authService) CreateUser(ctx context.Context, req *requests.CreateUserRe
 		Role:        "user",
 		CompanyCode: companyCode,
 		CompanyName: companyName,
+		Menus:       req.Menus,
 		IsDeleted:   false,
 		CreatedAt:   now,
 		UpdatedAt:   now,
@@ -216,6 +218,22 @@ func (s *authService) GetUsers(ctx context.Context, companyCode string) ([]*mode
 	}
 
 	return users, nil
+}
+
+func (s *authService) UpdateUserMenus(ctx context.Context, userID string, menus []string) error {
+	db := storage.GetMongo()
+	masterDB := db.Database(MasterDatabase)
+
+	objID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return errors.New("invalid user ID")
+	}
+
+	_, err = masterDB.Collection(UsersCollection).UpdateOne(ctx,
+		bson.M{"_id": objID, "role": "user"},
+		bson.M{"$set": bson.M{"menus": menus, "updated_at": time.Now()}},
+	)
+	return err
 }
 
 func (s *authService) DeleteUser(ctx context.Context, userID string) error {

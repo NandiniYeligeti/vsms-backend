@@ -25,6 +25,8 @@ type Loan struct {
 	EMIAmount       float64           `bson:"emi_amount" json:"emi_amount"`
 	Status          string            `bson:"status" json:"status"` // Applied, Approved, Disbursed, Rejected
 	AccountNumber   string            `bson:"account_number" json:"account_number"`
+	BankPerson      string            `bson:"bank_person" json:"bank_person"`
+	Mobile          string            `bson:"mobile" json:"mobile"`
 	DisbursementDate *time.Time        `bson:"disbursement_date" json:"disbursement_date"`
 	
 	IsDeleted       bool              `bson:"is_deleted" json:"is_deleted"`

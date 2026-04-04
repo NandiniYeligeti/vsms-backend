@@ -15,6 +15,9 @@ type CompanySettings struct {
 	Phone         string             `bson:"phone" json:"phone"`
 	Email         string             `bson:"email" json:"email"`
 	InvoicePrefix string             `bson:"invoice_prefix" json:"invoice_prefix"`
+	InvoiceSuffix string             `bson:"invoice_suffix" json:"invoice_suffix"`
+	SalesPrefix   string             `bson:"sales_prefix" json:"sales_prefix"`
+	SalesSuffix   string             `bson:"sales_suffix" json:"sales_suffix"`
 	Currency      string             `bson:"currency" json:"currency"`
 	Timezone      string             `bson:"timezone" json:"timezone"`
 

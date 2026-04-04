@@ -47,11 +47,17 @@ type SalesOrder struct {
 	RegistrationCharges  float64 `bson:"registration_charges" json:"registration_charges"`
 	Insurance            float64 `bson:"insurance" json:"insurance"`
 	Accessories          float64 `bson:"accessories" json:"accessories"`
+	DiscountType         string  `bson:"discount_type" json:"discount_type"`
+	DiscountValue        float64 `bson:"discount_value" json:"discount_value"`
+	DiscountReason       string  `bson:"discount_reason" json:"discount_reason"`
+	DiscountAmount       float64 `bson:"discount_amount" json:"discount_amount"`
 
 	TotalAmount   float64 `bson:"total_amount" json:"total_amount"`
 	DownPayment   float64 `bson:"down_payment" json:"down_payment"`
 	LoanAmount    float64 `bson:"loan_amount" json:"loan_amount"`
 	BalanceAmount float64 `bson:"balance_amount" json:"balance_amount"`
+	PaymentType   string  `bson:"payment_type" json:"payment_type"`
+	PaymentMode   string  `bson:"payment_mode" json:"payment_mode"`
 
 	Status string `bson:"status" json:"status"`
 
@@ -89,7 +95,7 @@ func NewSalesOrder() *SalesOrder {
 	return &SalesOrder{
 		ID:             id,
 		EntityID:       id.Hex(),
-		SalesOrderCode: "SO" + id.Hex()[18:24],
+		SalesOrderCode: id.Hex()[18:24], // Running number only; prefix/suffix applied by service
 		Status:         "Pending",
 		IsDeleted:      false,
 		CreatedAt:      now,
@@ -112,8 +118,15 @@ func (s *SalesOrder) Bind(req *requests.CreateSalesOrderRequest) {
 	s.Insurance = req.Insurance
 	s.Accessories = req.Accessories
 
+	s.DiscountType = req.DiscountType
+	s.DiscountValue = req.DiscountValue
+	s.DiscountReason = req.DiscountReason
+	s.DiscountAmount = req.DiscountAmount
+
 	s.TotalAmount = req.TotalAmount
 	s.DownPayment = req.DownPayment
 	s.LoanAmount = req.LoanAmount
 	s.BalanceAmount = req.BalanceAmount
+	s.PaymentType = req.PaymentType
+	s.PaymentMode = req.PaymentMode
 }

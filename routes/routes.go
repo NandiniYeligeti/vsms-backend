@@ -115,12 +115,21 @@ func Routes(api *gin.RouterGroup) {
 		dashboard.POST("/seed/:company_code", SeedData)
 	}
 
+	bankMaster := api.Group("/bank-master")
+	{
+		bankMaster.POST("/:company_code", CreateBankMaster)
+		bankMaster.GET("/:company_code", GetBankMasters)
+		bankMaster.PUT("/:company_code/:id", UpdateBankMaster)
+		bankMaster.DELETE("/:company_code/:id", DeleteBankMaster)
+	}
+
 	// ================= USER MANAGEMENT =================
 	users := api.Group("/users")
 	users.Use(middleware.AuthMiddleware())
 	{
 		users.POST("/:company_code", CreateUser)
 		users.GET("/:company_code", GetUsers)
+		users.PUT("/:id/menus", UpdateUserMenus)
 		users.DELETE("/:company_code/:id", DeleteUser)
 	}
 

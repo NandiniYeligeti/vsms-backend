@@ -38,9 +38,10 @@ func (r *CreateCompanyRequest) Validate(c *gin.Context) error {
 }
 
 type CreateUserRequest struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Username string   `json:"username"`
+	Email    string   `json:"email"`
+	Password string   `json:"password"`
+	Menus    []string `json:"menus"`
 }
 
 func (r *CreateUserRequest) Validate(c *gin.Context) error {
@@ -51,4 +52,12 @@ func (r *CreateUserRequest) Validate(c *gin.Context) error {
 		return errors.New("username, email, and password are required")
 	}
 	return nil
+}
+
+type UpdateUserMenusRequest struct {
+	Menus []string `json:"menus" binding:"required"`
+}
+
+func (r *UpdateUserMenusRequest) Validate(c *gin.Context) error {
+	return c.ShouldBindJSON(r)
 }
