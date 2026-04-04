@@ -10,6 +10,7 @@ type CreateVehicleInventoryRequest struct {
 	CompanyID      string    `json:"company_id" binding:"required"`
 	BranchID       string    `json:"branch_id" binding:"required"`
 	VehicleModelID string    `json:"vehicle_model_id" binding:"required"`
+	Showroom       string    `json:"showroom"`
 	Color          string    `json:"color" binding:"required"`
 	ChassisNumber  string    `json:"chassis_number" binding:"required"`
 	EngineNumber   string    `json:"engine_number" binding:"required"`
@@ -24,6 +25,7 @@ type CreateVehicleInventoryRequest struct {
 }
 
 type UpdateVehicleInventoryRequest struct {
+	Showroom      *string    `json:"showroom,omitempty"`
 	Color         *string    `json:"color,omitempty"`
 	ChassisNumber *string    `json:"chassis_number,omitempty"`
 	EngineNumber  *string    `json:"engine_number,omitempty"`

@@ -8,16 +8,16 @@ import (
 )
 
 type VehicleModel struct {
-	ID               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	EntityID         string             `bson:"entity_id" json:"entity_id"`
-	VehicleModelCode string             `bson:"vehicle_model_code" json:"vehicle_model_code"`
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	EntityID  string             `bson:"entity_id" json:"entity_id"`
+	ModelCode string             `bson:"model_code" json:"model_code"`
 
 	CompanyID string `bson:"company_id" json:"company_id"`
 	BranchID  string `bson:"branch_id" json:"branch_id"`
 
-	Brand     string  `bson:"brand" json:"brand"`
-	Model     string  `bson:"model" json:"model"`
-	Variant   string  `bson:"variant" json:"variant"`
+	Brand     string   `bson:"brand" json:"brand"`
+	Model     string   `bson:"model" json:"model"`
+	Variant   string   `bson:"variant" json:"variant"`
 	FuelType  []string `bson:"fuel_type" json:"fuel_type"`
 	BasePrice float64  `bson:"base_price" json:"base_price"`
 
@@ -36,9 +36,10 @@ type VehicleModel struct {
 }
 
 type UpdateVehicleModel struct {
-	Brand      *string  `bson:"brand,omitempty" json:"brand,omitempty"`
-	Model      *string  `bson:"model,omitempty" json:"model,omitempty"`
-	Variant    *string  `bson:"variant,omitempty" json:"variant,omitempty"`
+	ModelCode  *string   `bson:"model_code,omitempty" json:"model_code,omitempty"`
+	Brand      *string   `bson:"brand,omitempty" json:"brand,omitempty"`
+	Model      *string   `bson:"model,omitempty" json:"model,omitempty"`
+	Variant    *string   `bson:"variant,omitempty" json:"variant,omitempty"`
 	FuelType   *[]string `bson:"fuel_type,omitempty" json:"fuel_type,omitempty"`
 	BasePrice  *float64  `bson:"base_price,omitempty" json:"base_price,omitempty"`
 	TypeID     *string   `bson:"type_id,omitempty" json:"type_id,omitempty"`
@@ -55,18 +56,18 @@ func NewVehicleModel() *VehicleModel {
 	id := primitive.NewObjectID()
 
 	return &VehicleModel{
-		ID:               id,
-		EntityID:         id.Hex(),
-		VehicleModelCode: "VEH" + id.Hex()[18:24],
-		IsDeleted:        false,
-		CreatedAt:        now,
-		UpdatedAt:        now,
+		ID:        id,
+		EntityID:  id.Hex(),
+		IsDeleted: false,
+		CreatedAt: now,
+		UpdatedAt: now,
 	}
 }
 
 func (v *VehicleModel) Bind(req *requests.CreateVehicleModelRequest) {
 	v.CompanyID = req.CompanyID
 	v.BranchID = req.BranchID
+	v.ModelCode = req.ModelCode
 	v.Brand = req.Brand
 	v.Model = req.Model
 	v.Variant = req.Variant

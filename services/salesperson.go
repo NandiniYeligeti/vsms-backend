@@ -158,6 +158,18 @@ func (s *salespersonService) Update(
 		updateFields["branch_id"] = *req.BranchID
 	}
 
+	if req.Showroom != nil {
+		updateFields["showroom"] = *req.Showroom
+	}
+
+	if req.Branch != nil {
+		updateFields["branch"] = *req.Branch
+	}
+
+	if req.Area != nil {
+		updateFields["area"] = *req.Area
+	}
+
 	updateFields["updated_at"] = time.Now()
 
 	filter := bson.M{"entity_id": id}

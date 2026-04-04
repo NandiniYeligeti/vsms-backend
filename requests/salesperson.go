@@ -11,6 +11,10 @@ type CreateSalespersonRequest struct {
 	FullName     string `json:"full_name" binding:"required"`
 	MobileNumber string `json:"mobile_number" binding:"required"`
 	Email        string `json:"email" binding:"omitempty,email"`
+
+	Showroom string `json:"showroom"`
+	Branch   string `json:"branch"`
+	Area     string `json:"area"`
 }
 
 type UpdateSalespersonRequest struct {
@@ -18,6 +22,9 @@ type UpdateSalespersonRequest struct {
 	MobileNumber *string `json:"mobile_number,omitempty"`
 	Email        *string `json:"email,omitempty" binding:"omitempty,email"`
 	BranchID     *string `json:"branch_id,omitempty"`
+	Showroom     *string `json:"showroom,omitempty"`
+	Branch       *string `json:"branch,omitempty"`
+	Area         *string `json:"area,omitempty"`
 }
 
 func NewCreateSalespersonRequest() *CreateSalespersonRequest {

@@ -149,4 +149,13 @@ func Routes(api *gin.RouterGroup) {
 		settings.PUT("/:company_code", UpdateCompanySettings)
 	}
 
+	// ================= COMPANY MASTERS =================
+	companyMasters := api.Group("/company-master")
+	companyMasters.Use(middleware.AuthMiddleware())
+	{
+		companyMasters.POST("/:company_code", CreateCompanyMaster)
+		companyMasters.GET("/:company_code", GetCompanyMasters)
+		companyMasters.DELETE("/:company_code/:id", DeleteCompanyMaster)
+	}
+
 }

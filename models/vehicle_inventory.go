@@ -31,6 +31,7 @@ type VehicleInventory struct {
 	TotalPrice  float64  `bson:"total_price" json:"total_price"`
 	SellingPrice float64 `bson:"selling_price" json:"selling_price"`
 
+	Showroom      string    `bson:"showroom" json:"showroom"`
 	Color         string    `bson:"color" json:"color"`
 	ChassisNumber string    `bson:"chassis_number" json:"chassis_number"`
 	EngineNumber  string    `bson:"engine_number" json:"engine_number"`
@@ -48,6 +49,7 @@ type VehicleInventory struct {
 }
 
 type UpdateVehicleInventory struct {
+	Showroom      *string    `bson:"showroom,omitempty" json:"showroom,omitempty"`
 	Color         *string    `bson:"color,omitempty" json:"color,omitempty"`
 	ChassisNumber *string    `bson:"chassis_number,omitempty" json:"chassis_number,omitempty"`
 	EngineNumber  *string    `bson:"engine_number,omitempty" json:"engine_number,omitempty"`
@@ -77,6 +79,7 @@ func (v *VehicleInventory) Bind(req *requests.CreateVehicleInventoryRequest) {
 	v.CompanyID = req.CompanyID
 	v.BranchID = req.BranchID
 	v.VehicleModelID = req.VehicleModelID
+	v.Showroom = req.Showroom
 	v.Color = req.Color
 	v.ChassisNumber = req.ChassisNumber
 	v.EngineNumber = req.EngineNumber
