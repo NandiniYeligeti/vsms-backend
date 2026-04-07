@@ -31,6 +31,7 @@ type Payment struct {
 	CollectedBy string `bson:"collected_by" json:"collected_by"`
 
 	Remarks string `bson:"remarks" json:"remarks"`
+	EmailStatus string `bson:"email_status" json:"email_status"` // Sent, Failed, Pending
 
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 

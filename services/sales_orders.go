@@ -28,14 +28,20 @@ type SalesOrderService interface {
 	GetByID(ctx context.Context, companyCode string, id string) (*models.SalesOrder, error)
 	Update(ctx context.Context, companyCode string, id string, req *requests.UpdateSalesOrderRequest) (*models.SalesOrder, error)
 	Delete(ctx context.Context, companyCode string, id string) error
+	SendEmail(ctx context.Context, companyCode string, id string) error
+	PreviewEmail(ctx context.Context, companyCode string, id string) (*EmailPreview, error)
 }
 
 // ================== SERVICE STRUCT ==================
 
-type salesOrderService struct{}
+type salesOrderService struct {
+	emailService EmailService
+}
 
 func NewSalesOrderService() SalesOrderService {
-	return &salesOrderService{}
+	return &salesOrderService{
+		emailService: NewEmailService(),
+	}
 }
 
 //
@@ -189,6 +195,24 @@ func (s *salesOrderService) Create(
 	)
 
 	fmt.Println("Sales order created successfully")
+
+	// 9. Send Email (Async)
+	go func() {
+		err := s.emailService.SendSalesOrderConfirmation(context.Background(), companyCode, order)
+		status := "Sent"
+		if err != nil {
+			fmt.Printf("Error sending email: %v\n", err)
+			status = "Failed"
+		}
+		
+		// Update EmailStatus in DB
+		_ = salesCollection.FindOneAndUpdate(
+			context.Background(),
+			bson.M{"entity_id": order.EntityID},
+			bson.M{"$set": bson.M{"email_status": status}},
+		)
+	}()
+
 	return order, nil
 }
 
@@ -404,4 +428,24 @@ func (s *salesOrderService) Delete(
 
 	fmt.Println("Sales order deleted successfully")
 	return nil
-}
+}
+
+func (s *salesOrderService) SendEmail(ctx context.Context, companyCode string, id string) error {
+	order, err := s.GetByID(ctx, companyCode, id)
+	if err != nil {
+		return err
+	}
+
+	return s.emailService.SendSalesOrderConfirmation(ctx, companyCode, order)
+}
+
+func (s *salesOrderService) PreviewEmail(ctx context.Context, companyCode string, id string) (*EmailPreview, error) {
+	order, err := s.GetByID(ctx, companyCode, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.emailService.PreviewSalesOrderEmail(ctx, companyCode, order)
+}
+
+

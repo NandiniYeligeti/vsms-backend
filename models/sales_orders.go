@@ -62,6 +62,7 @@ type SalesOrder struct {
 	UTRNumber   string  `bson:"utr_number" json:"utr_number"`
 
 	Status string `bson:"status" json:"status"`
+	EmailStatus string `bson:"email_status" json:"email_status"` // Sent, Failed, Pending
 
 	IncentiveAmount float64   `bson:"incentive_amount" json:"incentive_amount"`
 	IncentiveStatus string    `bson:"incentive_status" json:"incentive_status"`

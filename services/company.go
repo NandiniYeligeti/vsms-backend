@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"net/smtp"
 	"time"
 	"vehiclesales/models"
 	"vehiclesales/storage"
@@ -16,6 +17,7 @@ const CompanySettingsCollection = "company_settings"
 type CompanySettingsService interface {
 	Get(ctx context.Context, companyCode string) (*models.CompanySettings, error)
 	Update(ctx context.Context, companyCode string, settings *models.CompanySettings) error
+	SendTestEmail(ctx context.Context, companyCode string, settings *models.EmailSettings) error
 }
 
 type companySettingsService struct{}
@@ -62,4 +64,17 @@ func (s *companySettingsService) Update(ctx context.Context, companyCode string,
 	)
 	
 	return err
+}
+
+func (s *companySettingsService) SendTestEmail(ctx context.Context, companyCode string, email *models.EmailSettings) error {
+	auth := smtp.PlainAuth("", email.EmailUsername, email.EmailPassword, email.SMTPHost)
+
+	to := []string{email.SenderEmail}
+	msg := []byte("To: " + email.SenderEmail + "\r\n" +
+		"Subject: VSMS Test Email\r\n" +
+		"\r\n" +
+		"This is a test email from your Vehicle Sales Management System. Your SMTP settings are correctly configured.\r\n")
+
+	addr := fmt.Sprintf("%s:%d", email.SMTPHost, email.SMTPPort)
+	return smtp.SendMail(addr, auth, email.SenderEmail, to, msg)
 }

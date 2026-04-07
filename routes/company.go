@@ -53,3 +53,21 @@ func UpdateCompanySettings(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Settings updated successfully", "data": settings})
 }
+func SendTestEmail(c *gin.Context) {
+	companyCode := c.Param("company_code")
+
+	var emailSettings models.EmailSettings
+	if err := c.ShouldBindJSON(&emailSettings); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := services.NewCompanySettingsService()
+	err := service.SendTestEmail(context.Background(), companyCode, &emailSettings)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Test email sent successfully"})
+}

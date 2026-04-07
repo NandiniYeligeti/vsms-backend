@@ -27,14 +27,19 @@ type PaymentService interface {
 	GetByID(ctx context.Context, companyCode string, id string) (*models.Payment, error)
 	Update(ctx context.Context, companyCode string, id string, req *requests.UpdatePaymentRequest) (*models.Payment, error)
 	Delete(ctx context.Context, companyCode string, id string) error
+	SendEmail(ctx context.Context, companyCode string, id string) error
+	PreviewEmail(ctx context.Context, companyCode string, id string) (*EmailPreview, error)
 }
 
-// ================== SERVICE STRUCT ==================
 
-type paymentService struct{}
+type paymentService struct {
+	emailService EmailService
+}
 
 func NewPaymentService() PaymentService {
-	return &paymentService{}
+	return &paymentService{
+		emailService: NewEmailService(),
+	}
 }
 
 // ================== CREATE PAYMENT ==================
@@ -120,6 +125,33 @@ func (s *paymentService) Create(
 	)
 
 	fmt.Println("Payment recorded successfully")
+
+	// 8. Send Email (Async)
+	go func() {
+		// Fetch customer for email address
+		var customer models.Customer
+		customerCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("customers")
+		err := customerCollection.FindOne(context.Background(), bson.M{"entity_id": payment.CustomerID}).Decode(&customer)
+		if err != nil {
+			fmt.Printf("Error fetching customer for email: %v\n", err)
+			return
+		}
+
+		err = s.emailService.SendPaymentReceipt(context.Background(), companyCode, payment, &customer)
+		status := "Sent"
+		if err != nil {
+			fmt.Printf("Error sending payment email: %v\n", err)
+			status = "Failed"
+		}
+		
+		// Update EmailStatus in DB
+		_ = paymentCollection.FindOneAndUpdate(
+			context.Background(),
+			bson.M{"entity_id": payment.EntityID},
+			bson.M{"$set": bson.M{"email_status": status}},
+		)
+	}()
+
 	return payment, nil
 }
 
@@ -274,3 +306,38 @@ func (s *paymentService) Delete(
 	fmt.Println("Payment deleted successfully")
 	return nil
 }
+
+func (s *paymentService) SendEmail(ctx context.Context, companyCode string, id string) error {
+	payment, err := s.GetByID(ctx, companyCode, id)
+	if err != nil {
+		return err
+	}
+
+	db := storage.GetMongo()
+	var customer models.Customer
+	customerCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("customers")
+	err = customerCollection.FindOne(ctx, bson.M{"entity_id": payment.CustomerID}).Decode(&customer)
+	if err != nil {
+		return err
+	}
+
+	return s.emailService.SendPaymentReceipt(ctx, companyCode, payment, &customer)
+}
+
+func (s *paymentService) PreviewEmail(ctx context.Context, companyCode string, id string) (*EmailPreview, error) {
+	payment, err := s.GetByID(ctx, companyCode, id)
+	if err != nil {
+		return nil, err
+	}
+
+	db := storage.GetMongo()
+	var customer models.Customer
+	customerCollection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("customers")
+	err = customerCollection.FindOne(ctx, bson.M{"entity_id": payment.CustomerID}).Decode(&customer)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.emailService.PreviewPaymentReceiptEmail(ctx, companyCode, payment, &customer)
+}
+

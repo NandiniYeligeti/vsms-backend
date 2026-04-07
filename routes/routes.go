@@ -83,6 +83,8 @@ func Routes(api *gin.RouterGroup) {
 		salesOrder.GET("/:company_code/:id", GetSalesOrderById)
 		salesOrder.PUT("/:company_code/:id", UpdateSalesOrder)
 		salesOrder.DELETE("/:company_code/:id", DeleteSalesOrder)
+		salesOrder.POST("/:company_code/:id/send-email", SendOrderEmail)
+		salesOrder.GET("/:company_code/:id/preview-email", PreviewOrderEmail)
 	}
 
 	// ================= PAYMENTS =================
@@ -94,6 +96,8 @@ func Routes(api *gin.RouterGroup) {
 		payment.GET("/:company_code/:id", GetPaymentById)
 		payment.PUT("/:company_code/:id", UpdatePayment)
 		payment.DELETE("/:company_code/:id", DeletePayment)
+		payment.POST("/:company_code/:id/send-email", SendPaymentEmail)
+		payment.GET("/:company_code/:id/preview-email", PreviewPaymentEmail)
 	}
 
 	// ================= LOANS =================
@@ -156,6 +160,7 @@ func Routes(api *gin.RouterGroup) {
 	{
 		settings.GET("/:company_code", GetCompanySettings)
 		settings.PUT("/:company_code", UpdateCompanySettings)
+		settings.POST("/:company_code/test-email", SendTestEmail)
 	}
 
 	// ================= COMPANY MASTERS =================
