@@ -5,6 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type MenuPermission struct {
+	MenuID    string `json:"menu_id" bson:"menu_id"`
+	CanAdd    bool   `json:"can_add" bson:"can_add"`
+	CanEdit   bool   `json:"can_edit" bson:"can_edit"`
+	CanDelete bool   `json:"can_delete" bson:"can_delete"`
+}
+
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
@@ -38,10 +45,11 @@ func (r *CreateCompanyRequest) Validate(c *gin.Context) error {
 }
 
 type CreateUserRequest struct {
-	Username string   `json:"username"`
-	Email    string   `json:"email"`
-	Password string   `json:"password"`
-	Menus    []string `json:"menus"`
+	Username    string           `json:"username"`
+	Email       string           `json:"email"`
+	Password    string           `json:"password"`
+	Menus       []string         `json:"menus"`
+	Permissions []MenuPermission `json:"permissions"`
 }
 
 func (r *CreateUserRequest) Validate(c *gin.Context) error {
@@ -55,7 +63,8 @@ func (r *CreateUserRequest) Validate(c *gin.Context) error {
 }
 
 type UpdateUserMenusRequest struct {
-	Menus []string `json:"menus" binding:"required"`
+	Menus       []string         `json:"menus"`
+	Permissions []MenuPermission `json:"permissions"`
 }
 
 func (r *UpdateUserMenusRequest) Validate(c *gin.Context) error {

@@ -296,12 +296,25 @@ func (s *customerService) GetLedger(
 			ID:          s.EntityID,
 			Date:        s.SaleDate,
 			Description: "Vehicle Sale",
-			Debit:       s.TotalAmount,
+			Debit:       s.TotalAmount + s.DiscountAmount,
 			Credit:      0,
 			VehicleName: vehicleStr,
 			VehicleID:   s.EntityID,
 			SalesOrderCode: s.SalesOrderCode,
 		})
+
+		if s.DiscountAmount > 0 {
+			entries = append(entries, &models.LedgerEntry{
+				ID:          s.EntityID + "_discount",
+				Date:        s.SaleDate,
+				Description: "Discount Allowed",
+				Debit:       0,
+				Credit:      s.DiscountAmount,
+				VehicleName: vehicleStr,
+				VehicleID:   s.EntityID,
+				SalesOrderCode: s.SalesOrderCode,
+			})
+		}
 
 		if s.DownPayment > 0 {
 			entries = append(entries, &models.LedgerEntry{

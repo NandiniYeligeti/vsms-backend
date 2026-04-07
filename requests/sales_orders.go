@@ -33,6 +33,8 @@ type CreateSalesOrderRequest struct {
 
 	PaymentType string `json:"payment_type"`
 	PaymentMode string `json:"payment_mode"`
+	LoanStatus  string `json:"loan_status"`
+	UTRNumber   string `json:"utr_number"`
 }
 
 type UpdateSalesOrderRequest struct {

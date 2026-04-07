@@ -57,7 +57,9 @@ type SalesOrder struct {
 	LoanAmount    float64 `bson:"loan_amount" json:"loan_amount"`
 	BalanceAmount float64 `bson:"balance_amount" json:"balance_amount"`
 	PaymentType   string  `bson:"payment_type" json:"payment_type"`
-	PaymentMode   string  `bson:"payment_mode" json:"payment_mode"`
+	PaymentMode string  `bson:"payment_mode" json:"payment_mode"`
+	LoanStatus  string  `bson:"loan_status" json:"loan_status"`
+	UTRNumber   string  `bson:"utr_number" json:"utr_number"`
 
 	Status string `bson:"status" json:"status"`
 
@@ -129,4 +131,6 @@ func (s *SalesOrder) Bind(req *requests.CreateSalesOrderRequest) {
 	s.BalanceAmount = req.BalanceAmount
 	s.PaymentType = req.PaymentType
 	s.PaymentMode = req.PaymentMode
+	s.LoanStatus = req.LoanStatus
+	s.UTRNumber = req.UTRNumber
 }

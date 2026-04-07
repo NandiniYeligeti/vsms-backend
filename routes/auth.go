@@ -153,11 +153,11 @@ func UpdateUserMenus(c *gin.Context) {
 	}
 
 	service := services.NewAuthService()
-	err := service.UpdateUserMenus(ctx, userID, req.Menus)
+	err := service.UpdateUserMenus(ctx, userID, req.Menus, req.Permissions)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Menus updated successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Permissions updated successfully"})
 }
