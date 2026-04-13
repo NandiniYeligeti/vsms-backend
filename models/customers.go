@@ -26,6 +26,7 @@ type Customer struct {
 	AadhaarCardNo string `bson:"aadhaar_card_no" json:"aadhaar_card_no"`
 	PanCardNo     string   `bson:"pan_card_no" json:"pan_card_no"`
 	Documents     []string `bson:"documents" json:"documents"`
+	Showroom      string   `bson:"showroom" json:"showroom"`
 
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 

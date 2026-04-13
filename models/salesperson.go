@@ -23,6 +23,9 @@ type Salesperson struct {
 	Branch   string `bson:"branch" json:"branch"`
 	Area     string `bson:"area" json:"area"`
 
+	IsInactive   bool       `bson:"is_inactive" json:"is_inactive"`
+	InactiveDate *time.Time `bson:"inactive_date,omitempty" json:"inactive_date,omitempty"`
+
 	IsDeleted bool `bson:"is_deleted" json:"is_deleted"`
 
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
@@ -37,6 +40,8 @@ type UpdateSalesperson struct {
 	Showroom     *string `bson:"showroom,omitempty" json:"showroom,omitempty"`
 	Branch       *string `bson:"branch,omitempty" json:"branch,omitempty"`
 	Area         *string `bson:"area,omitempty" json:"area,omitempty"`
+	IsInactive   *bool      `bson:"is_inactive,omitempty" json:"is_inactive,omitempty"`
+	InactiveDate *time.Time `bson:"inactive_date,omitempty" json:"inactive_date,omitempty"`
 }
 
 func NewSalesperson() *Salesperson {
