@@ -70,3 +70,18 @@ type UpdateUserMenusRequest struct {
 func (r *UpdateUserMenusRequest) Validate(c *gin.Context) error {
 	return c.ShouldBindJSON(r)
 }
+
+type UpdatePasswordRequest struct {
+	Password string `json:"password"`
+}
+
+func (r *UpdatePasswordRequest) Validate(c *gin.Context) error {
+	if err := c.ShouldBindJSON(r); err != nil {
+		return err
+	}
+	if r.Password == "" {
+		return errors.New("password is required")
+	}
+	return nil
+}
+

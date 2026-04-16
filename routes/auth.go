@@ -161,3 +161,24 @@ func UpdateUserMenus(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Permissions updated successfully"})
 }
+
+func UpdatePassword(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	userID := c.Param("id")
+	var req requests.UpdatePasswordRequest
+	if err := req.Validate(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := services.NewAuthService()
+	err := service.UpdatePassword(ctx, userID, req.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
+}

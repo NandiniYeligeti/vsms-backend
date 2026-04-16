@@ -31,6 +31,7 @@ type AuthService interface {
 	GetUsers(ctx context.Context, companyCode string) ([]*models.User, error)
 	UpdateUserMenus(ctx context.Context, userID string, menus []string, permissions []requests.MenuPermission) error
 	DeleteUser(ctx context.Context, userID string) error
+	UpdatePassword(ctx context.Context, userID string, newPassword string) error
 }
 
 type authService struct{}
@@ -260,3 +261,20 @@ func (s *authService) DeleteUser(ctx context.Context, userID string) error {
 
 	return nil
 }
+
+func (s *authService) UpdatePassword(ctx context.Context, userID string, newPassword string) error {
+	db := storage.GetMongo()
+	masterDB := db.Database(MasterDatabase)
+
+	objID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		return errors.New("invalid user ID")
+	}
+
+	_, err = masterDB.Collection(UsersCollection).UpdateOne(ctx,
+		bson.M{"_id": objID},
+		bson.M{"$set": bson.M{"password": newPassword, "updated_at": time.Now()}},
+	)
+	return err
+}
+

@@ -134,6 +134,7 @@ func Routes(api *gin.RouterGroup) {
 		users.POST("/:company_code", CreateUser)
 		users.GET("/:company_code", GetUsers)
 		users.PUT("/:id/menus", UpdateUserMenus)
+		users.PUT("/:id/password", UpdatePassword)
 		users.DELETE("/:company_code/:id", DeleteUser)
 	}
 
