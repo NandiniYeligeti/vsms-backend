@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/smtp"
 	"vehiclesales/models"
@@ -18,6 +19,7 @@ type EmailService interface {
 	SendPaymentReceipt(ctx context.Context, companyCode string, payment *models.Payment, customer *models.Customer) error
 	PreviewSalesOrderEmail(ctx context.Context, companyCode string, order *models.SalesOrder) (*EmailPreview, error)
 	PreviewPaymentReceiptEmail(ctx context.Context, companyCode string, payment *models.Payment, customer *models.Customer) (*EmailPreview, error)
+	SendForgotPasswordEmail(ctx context.Context, user *models.User) error
 }
 
 type emailService struct {
@@ -44,6 +46,7 @@ func (s *emailService) SendSalesOrderConfirmation(ctx context.Context, companyCo
 	body := preview.Body
 
 	msg := []byte("To: " + order.Email + "\r\n" +
+		"From: \"" + mail.SenderName + "\" <" + mail.SenderEmail + ">\r\n" +
 		"Subject: " + subject + "\r\n" +
 		"\r\n" + body)
 
@@ -96,6 +99,7 @@ func (s *emailService) SendPaymentReceipt(ctx context.Context, companyCode strin
 	body := preview.Body
 
 	msg := []byte("To: " + customer.Email + "\r\n" +
+		"From: \"" + mail.SenderName + "\" <" + mail.SenderEmail + ">\r\n" +
 		"Subject: " + subject + "\r\n" +
 		"\r\n" + body)
 
@@ -132,4 +136,36 @@ Best regards,
 		Subject: subject,
 		Body:    body,
 	}, nil
+}
+
+func (s *emailService) SendForgotPasswordEmail(ctx context.Context, user *models.User) error {
+	settings, err := s.companyService.Get(ctx, user.CompanyCode)
+	if err != nil || settings == nil || !settings.EmailSettings.EnableEmail {
+		return errors.New("email service not configured for this company. please contact administrator")
+	}
+
+	mail := settings.EmailSettings
+	auth := smtp.PlainAuth("", mail.EmailUsername, mail.EmailPassword, mail.SMTPHost)
+
+	subject := "Password Recovery - DDR AutoPro"
+	body := fmt.Sprintf(`
+Dear %s,
+
+You requested your password for DDR AutoPro.
+
+Your Current Password: %s
+
+Please change your password after logging in for security.
+
+Best regards,
+%s
+`, user.Username, user.Password, settings.EmailSettings.SenderName)
+
+	msg := []byte("To: " + user.Email + "\r\n" +
+		"From: \"" + mail.SenderName + "\" <" + mail.SenderEmail + ">\r\n" +
+		"Subject: " + subject + "\r\n" +
+		"\r\n" + body)
+
+	addr := fmt.Sprintf("%s:%d", mail.SMTPHost, mail.SMTPPort)
+	return smtp.SendMail(addr, auth, mail.SenderEmail, []string{user.Email}, msg)
 }

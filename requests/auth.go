@@ -50,6 +50,9 @@ type CreateUserRequest struct {
 	Password    string           `json:"password"`
 	Menus       []string         `json:"menus"`
 	Permissions []MenuPermission `json:"permissions"`
+	Branches    []string         `json:"branches"`
+	Showrooms   []string         `json:"showrooms"`
+	Areas       []string         `json:"areas"`
 }
 
 func (r *CreateUserRequest) Validate(c *gin.Context) error {
@@ -65,6 +68,9 @@ func (r *CreateUserRequest) Validate(c *gin.Context) error {
 type UpdateUserMenusRequest struct {
 	Menus       []string         `json:"menus"`
 	Permissions []MenuPermission `json:"permissions"`
+	Branches    []string         `json:"branches"`
+	Showrooms   []string         `json:"showrooms"`
+	Areas       []string         `json:"areas"`
 }
 
 func (r *UpdateUserMenusRequest) Validate(c *gin.Context) error {
@@ -81,6 +87,20 @@ func (r *UpdatePasswordRequest) Validate(c *gin.Context) error {
 	}
 	if r.Password == "" {
 		return errors.New("password is required")
+	}
+	return nil
+}
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email"`
+}
+
+func (r *ForgotPasswordRequest) Validate(c *gin.Context) error {
+	if err := c.ShouldBindJSON(r); err != nil {
+		return err
+	}
+	if r.Email == "" {
+		return errors.New("email is required")
 	}
 	return nil
 }

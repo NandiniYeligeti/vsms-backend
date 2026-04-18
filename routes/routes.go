@@ -12,6 +12,7 @@ func Routes(api *gin.RouterGroup) {
 	auth := api.Group("")
 	{
 		auth.POST("/login", Login)
+		auth.POST("/forgot-password", ForgotPassword)
 		auth.POST("/super-admin/company", CreateCompany)
 		auth.GET("/super-admin/companies", GetCompaniesList)
 	}

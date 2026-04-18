@@ -18,7 +18,10 @@ type User struct {
 	LogoURL     string             `bson:"logo_url" json:"logo_url"`
 	Menus       []string           `bson:"menus" json:"menus"`
 	Permissions []requests.MenuPermission `bson:"permissions" json:"permissions"`
-	IsDeleted   bool               `bson:"is_deleted" json:"is_deleted"`
+	Branches    []string                  `bson:"branches" json:"branches"`
+	Showrooms   []string                  `bson:"showrooms" json:"showrooms"`
+	Areas       []string                  `bson:"areas" json:"areas"`
+	IsDeleted   bool                      `bson:"is_deleted" json:"is_deleted"`
 	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
 }

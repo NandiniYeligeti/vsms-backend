@@ -153,7 +153,7 @@ func UpdateUserMenus(c *gin.Context) {
 	}
 
 	service := services.NewAuthService()
-	err := service.UpdateUserMenus(ctx, userID, req.Menus, req.Permissions)
+	err := service.UpdateUserMenus(ctx, userID, req.Menus, req.Permissions, req.Branches, req.Showrooms, req.Areas)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -181,4 +181,24 @@ func UpdatePassword(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password updated successfully"})
+}
+
+func ForgotPassword(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var req requests.ForgotPasswordRequest
+	if err := req.Validate(c); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	service := services.NewAuthService()
+	err := service.ForgotPassword(ctx, req.Email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password sent to your registered email address"})
 }

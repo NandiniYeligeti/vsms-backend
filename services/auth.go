@@ -29,9 +29,10 @@ type AuthService interface {
 	GetCompanies(ctx context.Context) ([]*models.User, error)
 	CreateUser(ctx context.Context, req *requests.CreateUserRequest, companyCode string, companyName string) (*models.User, error)
 	GetUsers(ctx context.Context, companyCode string) ([]*models.User, error)
-	UpdateUserMenus(ctx context.Context, userID string, menus []string, permissions []requests.MenuPermission) error
+	UpdateUserMenus(ctx context.Context, userID string, menus []string, permissions []requests.MenuPermission, branches, showrooms, areas []string) error
 	DeleteUser(ctx context.Context, userID string) error
 	UpdatePassword(ctx context.Context, userID string, newPassword string) error
+	ForgotPassword(ctx context.Context, email string) error
 }
 
 type authService struct{}
@@ -187,6 +188,9 @@ func (s *authService) CreateUser(ctx context.Context, req *requests.CreateUserRe
 		CompanyName: companyName,
 		Menus:       req.Menus,
 		Permissions: req.Permissions,
+		Branches:    req.Branches,
+		Showrooms:   req.Showrooms,
+		Areas:       req.Areas,
 		IsDeleted:   false,
 		CreatedAt:   now,
 		UpdatedAt:   now,
@@ -222,7 +226,7 @@ func (s *authService) GetUsers(ctx context.Context, companyCode string) ([]*mode
 	return users, nil
 }
 
-func (s *authService) UpdateUserMenus(ctx context.Context, userID string, menus []string, permissions []requests.MenuPermission) error {
+func (s *authService) UpdateUserMenus(ctx context.Context, userID string, menus []string, permissions []requests.MenuPermission, branches, showrooms, areas []string) error {
 	db := storage.GetMongo()
 	masterDB := db.Database(MasterDatabase)
 
@@ -236,6 +240,9 @@ func (s *authService) UpdateUserMenus(ctx context.Context, userID string, menus 
 		bson.M{"$set": bson.M{
 			"menus":       menus,
 			"permissions": permissions,
+			"branches":    branches,
+			"showrooms":   showrooms,
+			"areas":       areas,
 			"updated_at":  time.Now(),
 		}},
 	)
@@ -277,4 +284,26 @@ func (s *authService) UpdatePassword(ctx context.Context, userID string, newPass
 	)
 	return err
 }
+
+func (s *authService) ForgotPassword(ctx context.Context, email string) error {
+	db := storage.GetMongo()
+	masterDB := db.Database(MasterDatabase)
+
+	var user models.User
+	err := masterDB.Collection(UsersCollection).FindOne(ctx, bson.M{
+		"email":      email,
+		"is_deleted": false,
+	}).Decode(&user)
+
+	if err == mongo.ErrNoDocuments {
+		return errors.New("user not found with this email")
+	}
+	if err != nil {
+		return err
+	}
+
+	emailSvc := NewEmailService()
+	return emailSvc.SendForgotPasswordEmail(ctx, &user)
+}
+
 
