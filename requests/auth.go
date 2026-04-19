@@ -7,6 +7,7 @@ import (
 
 type MenuPermission struct {
 	MenuID    string `json:"menu_id" bson:"menu_id"`
+	CanView   bool   `json:"can_view" bson:"can_view"`
 	CanAdd    bool   `json:"can_add" bson:"can_add"`
 	CanEdit   bool   `json:"can_edit" bson:"can_edit"`
 	CanDelete bool   `json:"can_delete" bson:"can_delete"`
