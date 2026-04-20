@@ -13,6 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const MasterDatabase = "vsms_master"
@@ -139,7 +140,8 @@ func (s *authService) GetCompanies(ctx context.Context) ([]*models.User, error) 
 	db := storage.GetMongo()
 	masterDB := db.Database(MasterDatabase)
 
-	cursor, err := masterDB.Collection(UsersCollection).Find(ctx, bson.M{"is_deleted": false, "role": "admin"})
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	cursor, err := masterDB.Collection(UsersCollection).Find(ctx, bson.M{"is_deleted": false, "role": "admin"}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -208,11 +210,12 @@ func (s *authService) GetUsers(ctx context.Context, companyCode string) ([]*mode
 	db := storage.GetMongo()
 	masterDB := db.Database(MasterDatabase)
 
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
 	cursor, err := masterDB.Collection(UsersCollection).Find(ctx, bson.M{
 		"is_deleted":    false,
 		"role":          "user",
 		"company_code":  companyCode,
-	})
+	}, opts)
 	if err != nil {
 		return nil, err
 	}

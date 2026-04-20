@@ -9,6 +9,7 @@ import (
 	"vehiclesales/storage"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -40,7 +41,8 @@ func (s *companyMasterService) Create(ctx context.Context, companyCode string, r
 func (s *companyMasterService) GetAll(ctx context.Context, companyCode string) ([]*models.CompanyMaster, error) {
 	db := storage.GetMongo()
 	collection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(CompanyMastersCollection)
-	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}})
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}}, opts)
 	if err != nil {
 		return nil, err
 	}

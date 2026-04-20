@@ -12,6 +12,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
@@ -55,7 +56,8 @@ func (s *vehicleFeatureService) CreateType(ctx context.Context, companyCode stri
 func (s *vehicleFeatureService) GetAllTypes(ctx context.Context, companyCode string) ([]*models.VehicleType, error) {
 	db := storage.GetMongo()
 	collection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(VehicleTypeCollection)
-	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}})
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -92,7 +94,8 @@ func (s *vehicleFeatureService) CreateCategory(ctx context.Context, companyCode 
 func (s *vehicleFeatureService) GetAllCategories(ctx context.Context, companyCode string) ([]*models.VehicleCategory, error) {
 	db := storage.GetMongo()
 	collection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(VehicleCategoryCollection)
-	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}})
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +132,8 @@ func (s *vehicleFeatureService) CreateAccessory(ctx context.Context, companyCode
 func (s *vehicleFeatureService) GetAllAccessories(ctx context.Context, companyCode string) ([]*models.VehicleAccessory, error) {
 	db := storage.GetMongo()
 	collection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(VehicleAccessoryCollection)
-	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}})
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	cursor, err := collection.Find(ctx, bson.M{"is_deleted": bson.M{"$ne": true}}, opts)
 	if err != nil {
 		return nil, err
 	}
