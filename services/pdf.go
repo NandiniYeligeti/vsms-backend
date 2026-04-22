@@ -56,7 +56,7 @@ func (s *pdfService) GeneratePaymentReceipt(settings *models.CompanySettings, pa
 
 	pdf.SetFont("Arial", "", 10)
 	pdf.SetTextColor(102, 102, 102)
-	pdf.CellFormat(0, 5, fmt.Sprintf("%s | Payment Receipt", settings.CompanyID), "", 0, "L", false, 0, "")
+	pdf.CellFormat(0, 5, "Payment Receipt", "", 0, "L", false, 0, "")
 	
 	pdf.SetTextColor(51, 51, 51)
 	pdf.CellFormat(0, 5, fmt.Sprintf("No: %s", payment.PaymentCode), "", 1, "R", false, 0, "")
@@ -192,7 +192,7 @@ func (s *pdfService) GenerateSalesOrder(settings *models.CompanySettings, order 
 
 	pdf.SetFont("Arial", "", 10)
 	pdf.SetTextColor(102, 102, 102)
-	pdf.CellFormat(0, 5, fmt.Sprintf("%s | Order Confirmation", settings.CompanyID), "", 0, "L", false, 0, "")
+	pdf.CellFormat(0, 5, "Order Confirmation", "", 0, "L", false, 0, "")
 	
 	pdf.SetTextColor(51, 51, 51)
 	pdf.CellFormat(0, 5, fmt.Sprintf("Order: %s", order.SalesOrderCode), "", 1, "R", false, 0, "")
