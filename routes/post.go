@@ -143,6 +143,37 @@ func CreateVehicleModel(c *gin.Context) {
 	c.JSON(201, vehicle)
 }
 
+func BatchCreateVehicleModels(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	companyCode := c.Param("company_code")
+	if companyCode == "" {
+		c.JSON(400, gin.H{"error": "company_code is required"})
+		return
+	}
+
+	var reqs []*requests.CreateVehicleModelRequest
+	if err := c.ShouldBindJSON(&reqs); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	if len(reqs) == 0 {
+		c.JSON(400, gin.H{"error": "at least one variant is required"})
+		return
+	}
+
+	service := services.NewVehicleModelService()
+	results, err := service.BatchCreate(ctx, companyCode, reqs)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(201, results)
+}
+
 func CreateVehicleInventory(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()

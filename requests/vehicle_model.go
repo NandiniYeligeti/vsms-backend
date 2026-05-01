@@ -20,6 +20,14 @@ type CreateVehicleModelRequest struct {
 	IncentiveType  string  `json:"incentive_type"`
 	IncentiveValue float64 `json:"incentive_value"`
 	ColorCount     int     `json:"color_count"`
+
+	// Per-variant spec fields
+	Transmission   string  `json:"transmission"`
+	EngineCC       float64 `json:"engine_cc"`
+	BatteryKWh     float64 `json:"battery_kwh"`
+	ChargingTime   string  `json:"charging_time"`
+	TankCapacity   float64 `json:"tank_capacity"`
+	AverageMileage float64 `json:"average_mileage"`
 }
 
 type UpdateVehicleModelRequest struct {
@@ -36,6 +44,14 @@ type UpdateVehicleModelRequest struct {
 	IncentiveType  *string  `json:"incentive_type,omitempty"`
 	IncentiveValue *float64 `json:"incentive_value,omitempty"`
 	ColorCount     *int     `json:"color_count,omitempty"`
+
+	// Per-variant spec fields
+	Transmission   *string  `json:"transmission,omitempty"`
+	EngineCC       *float64 `json:"engine_cc,omitempty"`
+	BatteryKWh     *float64 `json:"battery_kwh,omitempty"`
+	ChargingTime   *string  `json:"charging_time,omitempty"`
+	TankCapacity   *float64 `json:"tank_capacity,omitempty"`
+	AverageMileage *float64 `json:"average_mileage,omitempty"`
 }
 
 func NewCreateVehicleModelRequest() *CreateVehicleModelRequest {

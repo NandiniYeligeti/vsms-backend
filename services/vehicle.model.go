@@ -22,6 +22,7 @@ const VehicleModelCollection = "vehicle_models"
 
 type VehicleModelService interface {
 	Create(ctx context.Context, companyCode string, req *requests.CreateVehicleModelRequest) (*models.VehicleModel, error)
+	BatchCreate(ctx context.Context, companyCode string, reqs []*requests.CreateVehicleModelRequest) ([]*models.VehicleModel, error)
 	GetAll(ctx context.Context, companyCode string) ([]*models.VehicleModel, error)
 	GetByID(ctx context.Context, companyCode string, id string) (*models.VehicleModel, error)
 	Update(ctx context.Context, companyCode string, id string, req *requests.UpdateVehicleModelRequest) (*models.VehicleModel, error)
@@ -68,6 +69,32 @@ func (s *vehicleModelService) Create(
 
 	fmt.Println("Vehicle model created successfully")
 	return vehicle, nil
+}
+
+// ================== BATCH CREATE VEHICLE MODELS ==================
+
+func (s *vehicleModelService) BatchCreate(
+	ctx context.Context,
+	companyCode string,
+	reqs []*requests.CreateVehicleModelRequest,
+) ([]*models.VehicleModel, error) {
+
+	db := storage.GetMongo()
+	collection := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection(VehicleModelCollection)
+
+	var results []*models.VehicleModel
+	for _, req := range reqs {
+		vehicle := models.NewVehicleModel()
+		vehicle.Bind(req)
+		_, err := collection.InsertOne(ctx, vehicle)
+		if err != nil {
+			return nil, err
+		}
+		results = append(results, vehicle)
+	}
+
+	fmt.Printf("Batch created %d vehicle model variants\n", len(results))
+	return results, nil
 }
 
 // ================== GET ALL VEHICLE MODELS ==================
@@ -167,6 +194,24 @@ func (s *vehicleModelService) Update(
 	}
 	if req.ColorCount != nil {
 		updateFields["color_count"] = *req.ColorCount
+	}
+	if req.Transmission != nil {
+		updateFields["transmission"] = *req.Transmission
+	}
+	if req.EngineCC != nil {
+		updateFields["engine_cc"] = *req.EngineCC
+	}
+	if req.BatteryKWh != nil {
+		updateFields["battery_kwh"] = *req.BatteryKWh
+	}
+	if req.ChargingTime != nil {
+		updateFields["charging_time"] = *req.ChargingTime
+	}
+	if req.TankCapacity != nil {
+		updateFields["tank_capacity"] = *req.TankCapacity
+	}
+	if req.AverageMileage != nil {
+		updateFields["average_mileage"] = *req.AverageMileage
 	}
 
 	updateFields["updated_at"] = time.Now()

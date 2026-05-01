@@ -41,6 +41,16 @@ func Routes(api *gin.RouterGroup) {
 		customer.DELETE("/:company_code/:id", DeleteCustomer)
 		customer.GET("/ledger/:company_code/:id", GetCustomerLedger)
 	}
+	// ================= ENQUIRIES =================
+	enquiry := api.Group("/enquiry")
+	enquiry.Use(middleware.AuthMiddleware())
+	{
+		enquiry.POST("/:company_code", CreateEnquiry)
+		enquiry.GET("/:company_code", GetEnquiries)
+		enquiry.GET("/:company_code/:id", GetEnquiryById)
+		enquiry.PUT("/:company_code/:id", UpdateEnquiry)
+		enquiry.DELETE("/:company_code/:id", DeleteEnquiry)
+	}
 
 	// ================= SALESPERSONS =================
 	salesperson := api.Group("/salesperson")
@@ -58,6 +68,7 @@ func Routes(api *gin.RouterGroup) {
 	vehicleModel.Use(middleware.AuthMiddleware())
 	{
 		vehicleModel.POST("/:company_code", CreateVehicleModel)
+		vehicleModel.POST("/:company_code/batch", BatchCreateVehicleModels)
 		vehicleModel.GET("/:company_code", GetVehicleModels)
 		vehicleModel.GET("/:company_code/:id", GetVehicleModelById)
 		vehicleModel.PUT("/:company_code/:id", UpdateVehicleModel)
