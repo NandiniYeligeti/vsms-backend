@@ -185,4 +185,14 @@ func Routes(api *gin.RouterGroup) {
 		companyMasters.DELETE("/:company_code/:id", DeleteCompanyMaster)
 	}
 
+	// ================= COMPANY BANK MASTERS =================
+	companyBankMaster := api.Group("/company-bank-master")
+	companyBankMaster.Use(middleware.AuthMiddleware())
+	{
+		companyBankMaster.POST("/:company_code", CreateCompanyBankMaster)
+		companyBankMaster.GET("/:company_code", GetCompanyBankMasters)
+		companyBankMaster.PUT("/:company_code/:id", UpdateCompanyBankMaster)
+		companyBankMaster.DELETE("/:company_code/:id", DeleteCompanyBankMaster)
+	}
+
 }
