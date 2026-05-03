@@ -9,6 +9,7 @@ type CreateBankMasterRequest struct {
 	BranchName    string  `json:"branch_name"`
 	ContactPerson string  `json:"contact_person"`
 	ContactNumber string  `json:"contact_number"`
+	IsDefault     bool    `json:"is_default"`
 	CompanyID     string  `json:"company_id"`
 }
 
@@ -24,6 +25,7 @@ type UpdateBankMasterRequest struct {
 	BranchName    *string `json:"branch_name,omitempty"`
 	ContactPerson *string `json:"contact_person,omitempty"`
 	ContactNumber *string `json:"contact_number,omitempty"`
+	IsDefault     *bool   `json:"is_default,omitempty"`
 }
 
 func (r *UpdateBankMasterRequest) Validate(c *gin.Context) error {

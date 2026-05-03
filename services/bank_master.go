@@ -39,6 +39,12 @@ func (s *bankMasterService) Create(ctx context.Context, companyCode string, req 
 	bank.BranchName = req.BranchName
 	bank.ContactPerson = req.ContactPerson
 	bank.ContactNumber = req.ContactNumber
+	bank.IsDefault = req.IsDefault
+
+	if bank.IsDefault {
+		// Unset default for all other banks in this company
+		_, _ = collection.UpdateMany(ctx, bson.M{}, bson.M{"$set": bson.M{"is_default": false}})
+	}
 
 	_, err := collection.InsertOne(ctx, bank)
 	return bank, err
@@ -83,6 +89,13 @@ func (s *bankMasterService) Update(ctx context.Context, companyCode string, id s
 	}
 	if req.ContactNumber != nil {
 		update["contact_number"] = *req.ContactNumber
+	}
+	if req.IsDefault != nil {
+		update["is_default"] = *req.IsDefault
+		if *req.IsDefault {
+			// Unset default for all other banks
+			_, _ = collection.UpdateMany(ctx, bson.M{"entity_id": bson.M{"$ne": id}}, bson.M{"$set": bson.M{"is_default": false}})
+		}
 	}
 	update["updated_at"] = time.Now()
 

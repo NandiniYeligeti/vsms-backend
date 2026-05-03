@@ -262,6 +262,7 @@ func (s *customerService) GetLedger(
 
 	salesCollection := db.Database(dbName).Collection("sales_orders")
 	paymentsCollection := db.Database(dbName).Collection("payments")
+	loansCollection := db.Database(dbName).Collection("loans")
 
 	// Fetch Sales Orders
 	sCursor, err := salesCollection.Find(ctx, bson.M{"customer_id": customerId, "is_deleted": bson.M{"$ne": true}})
@@ -282,6 +283,17 @@ func (s *customerService) GetLedger(
 	defer pCursor.Close(ctx)
 	var payments []*models.Payment
 	if err := pCursor.All(ctx, &payments); err != nil {
+		return nil, err
+	}
+
+	// Fetch Loans
+	lCursor, err := loansCollection.Find(ctx, bson.M{"customer_id": customerId, "is_deleted": bson.M{"$ne": true}})
+	if err != nil {
+		return nil, err
+	}
+	defer lCursor.Close(ctx)
+	var loans []*models.Loan
+	if err := lCursor.All(ctx, &loans); err != nil {
 		return nil, err
 	}
 
@@ -380,6 +392,40 @@ func (s *customerService) GetLedger(
 				}
 				return ""
 			}(),
+		})
+	}
+
+	// Add Loan Status entries
+	for _, l := range loans {
+		if l.StatusDate == nil {
+			continue
+		}
+		// Find vehicle name from associated sales order
+		vName := "Other/Unassigned"
+		vID := l.SalesOrderID
+		soCode := l.SalesOrderCode
+		for _, s := range sales {
+			if s.EntityID == l.SalesOrderID || s.ID.Hex() == l.SalesOrderID {
+				vName = fmt.Sprintf("%s %s", s.Brand, s.Model)
+				if s.ChassisNumber != "" {
+					vName += fmt.Sprintf(" (%s)", s.ChassisNumber)
+				}
+				vID = s.EntityID
+				soCode = s.SalesOrderCode
+				break
+			}
+		}
+
+		entries = append(entries, &models.LedgerEntry{
+			ID:             l.EntityID + "_status",
+			Date:           *l.StatusDate,
+			Description:    fmt.Sprintf("Loan %s — %s", l.Status, l.BankName),
+			Status:         l.Status,
+			Debit:          0,
+			Credit:         0,
+			VehicleName:    vName,
+			VehicleID:      vID,
+			SalesOrderCode: soCode,
 		})
 	}
 

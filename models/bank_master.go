@@ -14,6 +14,7 @@ type BankMaster struct {
 	BranchName    string             `bson:"branch_name" json:"branch_name"`
 	ContactPerson string             `bson:"contact_person" json:"contact_person"`
 	ContactNumber string             `bson:"contact_number" json:"contact_number"`
+	IsDefault     bool               `bson:"is_default" json:"is_default"`
 	IsDeleted     bool               `bson:"is_deleted" json:"is_deleted"`
 	CreatedAt     time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt     time.Time          `bson:"updated_at" json:"updated_at"`

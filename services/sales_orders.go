@@ -183,6 +183,49 @@ func (s *salesOrderService) Create(
 		return nil, err
 	}
 
+	// 7.5 Auto-create Loan entry if applicable
+	if req.PaymentType == "Down Payment + Loan" && req.LoanAmount > 0 {
+		loanCol := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("loans")
+		bankCol := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("bank_master")
+
+		var defaultBank models.BankMaster
+		bankErr := bankCol.FindOne(ctx, bson.M{"is_default": true, "is_deleted": bson.M{"$ne": true}}).Decode(&defaultBank)
+
+		loan := models.NewLoan()
+		loan.CompanyID = req.CompanyID
+		loan.BranchID = req.BranchID
+		loan.CustomerID = req.CustomerID
+		loan.CustomerName = customer.CustomerName
+		loan.SalesOrderID = order.EntityID
+		loan.SalesOrderCode = order.SalesOrderCode
+
+		if bankErr == nil {
+			loan.BankName = defaultBank.BankName
+			loan.BankPerson = defaultBank.ContactPerson
+			loan.Mobile = defaultBank.ContactNumber
+		} else {
+			loan.BankName = "TBD"
+		}
+
+		loan.LoanAmount = req.LoanAmount
+		loan.InterestRate = 0
+		loan.DurationMonths = 0
+		loan.EMIAmount = 0
+		loan.Status = req.LoanStatus
+		if loan.Status == "" {
+			loan.Status = "Applied"
+		}
+		now := time.Now()
+		loan.StatusDate = &now
+		
+		_, loanErr := loanCol.InsertOne(ctx, loan)
+		if loanErr != nil {
+			fmt.Printf("Error creating loan entry for sales order %s: %v\n", order.EntityID, loanErr)
+		} else {
+			fmt.Println("Auto-generated loan entry for sales order")
+		}
+	}
+
 	// 8. Mark vehicle sold
 	_, _ = vehicleCollection.UpdateOne(
 		ctx,

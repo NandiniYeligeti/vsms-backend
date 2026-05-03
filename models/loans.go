@@ -28,6 +28,7 @@ type Loan struct {
 	BankPerson      string            `bson:"bank_person" json:"bank_person"`
 	Mobile          string            `bson:"mobile" json:"mobile"`
 	DisbursementDate *time.Time        `bson:"disbursement_date" json:"disbursement_date"`
+	StatusDate       *time.Time        `bson:"status_date" json:"status_date"`
 	
 	IsDeleted       bool              `bson:"is_deleted" json:"is_deleted"`
 	CreatedAt       time.Time         `bson:"created_at" json:"created_at"`

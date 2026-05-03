@@ -88,6 +88,9 @@ func (s *loanService) Create(
 	loan.AccountNumber = req.AccountNumber
 	loan.BankPerson = req.BankPerson
 	loan.Mobile = req.Mobile
+	if req.StatusDate != nil {
+		loan.StatusDate = req.StatusDate
+	}
 
 	_, err = loanCol.InsertOne(ctx, loan)
 	if err != nil {
@@ -183,6 +186,9 @@ func (s *loanService) Update(
 	}
 	if req.Mobile != nil {
 		updateFields["mobile"] = *req.Mobile
+	}
+	if req.StatusDate != nil {
+		updateFields["status_date"] = *req.StatusDate
 	}
 	updateFields["updated_at"] = time.Now()
 
