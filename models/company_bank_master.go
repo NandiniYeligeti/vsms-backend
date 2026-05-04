@@ -13,6 +13,7 @@ type CompanyBankMaster struct {
 	BankName      string             `bson:"bank_name" json:"bank_name"`
 	BranchName    string             `bson:"branch_name" json:"branch_name"`
 	AccountNumber string             `bson:"account_number" json:"account_number"`
+	IsDefault     bool               `bson:"is_default" json:"is_default"`
 	IsDeleted     bool               `bson:"is_deleted" json:"is_deleted"`
 	CreatedAt     time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt     time.Time          `bson:"updated_at" json:"updated_at"`
