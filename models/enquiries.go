@@ -27,6 +27,7 @@ type Enquiry struct {
 	Salesperson string             `bson:"salesperson" json:"salesperson"`
 	FollowUps   []FollowUp         `bson:"follow_ups" json:"follow_ups"`
 	IsDeleted   bool               `bson:"is_deleted" json:"is_deleted"`
+	IsConverted bool               `bson:"is_converted" json:"is_converted"`
 	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
 }
@@ -39,6 +40,7 @@ type UpdateEnquiry struct {
 	Budget      *string     `bson:"budget,omitempty" json:"budget,omitempty"`
 	Salesperson *string     `bson:"salesperson,omitempty" json:"salesperson,omitempty"`
 	FollowUps   *[]FollowUp `bson:"follow_ups,omitempty" json:"follow_ups,omitempty"`
+	IsConverted *bool       `bson:"is_converted,omitempty" json:"is_converted,omitempty"`
 }
 
 func NewEnquiry() *Enquiry {
@@ -50,6 +52,7 @@ func NewEnquiry() *Enquiry {
 		EntityID:  id.Hex(),
 		FollowUps: []FollowUp{},
 		IsDeleted: false,
+		IsConverted: false,
 		CreatedAt: now,
 		UpdatedAt: now,
 	}

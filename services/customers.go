@@ -307,51 +307,41 @@ func (s *customerService) GetLedger(
 		}
 
 		entries = append(entries, &models.LedgerEntry{
-			ID:          s.EntityID,
-			Date:        s.SaleDate,
-			Description: "Vehicle Sale",
-			Debit:       s.TotalAmount + s.DiscountAmount,
-			Credit:      0,
-			VehicleName: vehicleStr,
-			VehicleID:   s.EntityID,
+			ID:             s.EntityID,
+			Date:           s.SaleDate,
+			Description:    "Vehicle Sale",
+			Status:         "Done",
+			Debit:          s.TotalAmount + s.DiscountAmount,
+			Credit:         0,
+			VehicleName:    vehicleStr,
+			VehicleID:      s.EntityID,
 			SalesOrderCode: s.SalesOrderCode,
 		})
 
 		if s.DiscountAmount > 0 {
 			entries = append(entries, &models.LedgerEntry{
-				ID:          s.EntityID + "_discount",
-				Date:        s.SaleDate,
-				Description: "Discount Allowed",
-				Debit:       0,
-				Credit:      s.DiscountAmount,
-				VehicleName: vehicleStr,
-				VehicleID:   s.EntityID,
+				ID:             s.EntityID + "_discount",
+				Date:           s.SaleDate,
+				Description:    "Discount Allowed",
+				Status:         "Done",
+				Debit:          0,
+				Credit:         s.DiscountAmount,
+				VehicleName:    vehicleStr,
+				VehicleID:      s.EntityID,
 				SalesOrderCode: s.SalesOrderCode,
 			})
 		}
 
 		if s.DownPayment > 0 {
 			entries = append(entries, &models.LedgerEntry{
-				ID:          s.EntityID + "_dp",
-				Date:        s.SaleDate,
-				Description: "Initial Down Payment",
-				Debit:       0,
-				Credit:      s.DownPayment,
-				VehicleName: vehicleStr,
-				VehicleID:   s.EntityID,
-				SalesOrderCode: s.SalesOrderCode,
-			})
-		}
-
-		if s.LoanAmount > 0 {
-			entries = append(entries, &models.LedgerEntry{
-				ID:          s.EntityID + "_loan",
-				Date:        s.SaleDate,
-				Description: "Loan Financed Amount",
-				Debit:       0,
-				Credit:      s.LoanAmount,
-				VehicleName: vehicleStr,
-				VehicleID:   s.EntityID,
+				ID:             s.EntityID + "_dp",
+				Date:           s.SaleDate,
+				Description:    "Down Payment",
+				Status:         "Received",
+				Debit:          0,
+				Credit:         s.DownPayment,
+				VehicleName:    vehicleStr,
+				VehicleID:      s.EntityID,
 				SalesOrderCode: s.SalesOrderCode,
 			})
 		}
@@ -380,11 +370,12 @@ func (s *customerService) GetLedger(
 			ID:          p.EntityID,
 			Date:        p.PaymentDate,
 			Description: fmt.Sprintf("%s — %s", p.PaymentType, p.PaymentMode),
+			Status:      "Received",
 			Debit:       0,
 			Credit:      p.PaymentAmount,
 			VehicleName: vName,
 			VehicleID:   vID,
-			SalesOrderCode: func() string{
+			SalesOrderCode: func() string {
 				for _, s := range sales {
 					if s.EntityID == vID || s.ID.Hex() == vID {
 						return s.SalesOrderCode
@@ -397,9 +388,6 @@ func (s *customerService) GetLedger(
 
 	// Add Loan Status entries
 	for _, l := range loans {
-		if l.StatusDate == nil {
-			continue
-		}
 		// Find vehicle name from associated sales order
 		vName := "Other/Unassigned"
 		vID := l.SalesOrderID
@@ -416,35 +404,54 @@ func (s *customerService) GetLedger(
 			}
 		}
 
+		// Generate steps based on status
+		// 1. Loan Applied (Always show if loan exists)
 		entries = append(entries, &models.LedgerEntry{
-			ID:             l.EntityID + "_status",
-			Date:           *l.StatusDate,
-			Description:    fmt.Sprintf("Loan %s — %s", l.Status, l.BankName),
-			Status:         l.Status,
+			ID:             l.EntityID + "_applied",
+			Date:           l.CreatedAt,
+			Description:    "Loan Applied",
+			Status:         "Pending",
 			Debit:          0,
 			Credit:         0,
 			VehicleName:    vName,
 			VehicleID:      vID,
 			SalesOrderCode: soCode,
 		})
+
+		// 2. Loan Approved (Show if Approved or Disbursed)
+		if (l.Status == "Approved" || l.Status == "Disbursed") && l.StatusDate != nil {
+			entries = append(entries, &models.LedgerEntry{
+				ID:             l.EntityID + "_approved",
+				Date:           *l.StatusDate,
+				Description:    "Loan Approved",
+				Status:         "Approved",
+				Debit:          0,
+				Credit:         0,
+				VehicleName:    vName,
+				VehicleID:      vID,
+				SalesOrderCode: soCode,
+			})
+		}
+
+		// 3. Loan Disbursed (Show if Disbursed)
+		if l.Status == "Disbursed" && l.DisbursementDate != nil {
+			entries = append(entries, &models.LedgerEntry{
+				ID:             l.EntityID + "_disbursed",
+				Date:           *l.DisbursementDate,
+				Description:    "Loan Disbursed",
+				Status:         "Disbursed",
+				Debit:          0,
+				Credit:         l.LoanAmount,
+				VehicleName:    vName,
+				VehicleID:      vID,
+				SalesOrderCode: soCode,
+			})
+		}
 	}
 
-	// Sort by date (Chronological for balance calculation)
+	// Sort by date (Oldest on top, Recent on bottom as per user request)
 	sort.Slice(entries, func(i, j int) bool {
 		return entries[i].Date.Before(entries[j].Date)
-	})
-
-	// Calculate balance
-	var balance float64
-	for i := range entries {
-		balance += entries[i].Debit
-		balance -= entries[i].Credit
-		entries[i].Balance = balance
-	}
-
-	// Re-Sort by date (Recent on top for UI)
-	sort.Slice(entries, func(i, j int) bool {
-		return entries[i].Date.After(entries[j].Date)
 	})
 
 	return entries, nil

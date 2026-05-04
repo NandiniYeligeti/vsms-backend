@@ -28,6 +28,7 @@ type UpdateEnquiryRequest struct {
 	Budget      *string            `json:"budget,omitempty"`
 	Salesperson *string            `json:"salesperson,omitempty"`
 	FollowUps   *[]FollowUpRequest `json:"follow_ups,omitempty"`
+	IsConverted *bool              `json:"is_converted,omitempty"`
 }
 
 func (r *CreateEnquiryRequest) Validate(c *gin.Context) error {

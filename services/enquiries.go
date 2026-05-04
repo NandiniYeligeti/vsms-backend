@@ -141,6 +141,9 @@ func (s *enquiryService) Update(
 		}
 		updateFields["follow_ups"] = fus
 	}
+	if req.IsConverted != nil {
+		updateFields["is_converted"] = *req.IsConverted
+	}
 
 	filter := bson.M{"entity_id": id}
 	if oid, err := primitive.ObjectIDFromHex(id); err == nil {
