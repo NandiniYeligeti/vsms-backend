@@ -434,18 +434,25 @@ func (s *customerService) GetLedger(
 		}
 
 		// 3. Loan Disbursed (Show if Disbursed)
-		if l.Status == "Disbursed" && l.DisbursementDate != nil {
-			entries = append(entries, &models.LedgerEntry{
-				ID:             l.EntityID + "_disbursed",
-				Date:           *l.DisbursementDate,
-				Description:    "Loan Disbursed",
-				Status:         "Disbursed",
-				Debit:          0,
-				Credit:         l.LoanAmount,
-				VehicleName:    vName,
-				VehicleID:      vID,
-				SalesOrderCode: soCode,
-			})
+		if l.Status == "Disbursed" {
+			disbDate := l.DisbursementDate
+			if disbDate == nil {
+				disbDate = l.StatusDate
+			}
+
+			if disbDate != nil {
+				entries = append(entries, &models.LedgerEntry{
+					ID:             l.EntityID + "_disbursed",
+					Date:           *disbDate,
+					Description:    "Loan Disbursed",
+					Status:         "Disbursed",
+					Debit:          0,
+					Credit:         l.LoanAmount,
+					VehicleName:    vName,
+					VehicleID:      vID,
+					SalesOrderCode: soCode,
+				})
+			}
 		}
 	}
 

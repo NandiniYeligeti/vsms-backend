@@ -92,6 +92,11 @@ func (s *loanService) Create(
 		loan.StatusDate = req.StatusDate
 	}
 
+	// Auto-fill DisbursementDate if status is Disbursed
+	if loan.Status == "Disbursed" && loan.DisbursementDate == nil && loan.StatusDate != nil {
+		loan.DisbursementDate = loan.StatusDate
+	}
+
 	_, err = loanCol.InsertOne(ctx, loan)
 	if err != nil {
 		return nil, err
@@ -189,6 +194,15 @@ func (s *loanService) Update(
 	}
 	if req.StatusDate != nil {
 		updateFields["status_date"] = *req.StatusDate
+	}
+
+	// Sync DisbursementDate if status is set to Disbursed and no specific disbursement date is provided
+	if status, ok := updateFields["status"].(string); ok && status == "Disbursed" {
+		if _, hasDisbDate := updateFields["disbursement_date"]; !hasDisbDate {
+			if sDate, hasSDate := updateFields["status_date"].(time.Time); hasSDate {
+				updateFields["disbursement_date"] = sDate
+			}
+		}
 	}
 	updateFields["updated_at"] = time.Now()
 
