@@ -395,6 +395,13 @@ func (s *salesOrderService) Update(
 		}
 	}
 
+	if req.DeliveryStatus != nil {
+		updateFields["delivery_status"] = *req.DeliveryStatus
+	}
+	if req.ActualDeliveryDate != nil {
+		updateFields["actual_delivery_date"] = *req.ActualDeliveryDate
+	}
+
 	// Update Status based on BalanceAmount if provided
 	if req.BalanceAmount != nil {
 		if *req.BalanceAmount <= 0 {

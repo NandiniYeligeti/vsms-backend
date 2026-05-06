@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"net/smtp"
@@ -43,8 +44,15 @@ func (s *emailService) SendSalesOrderConfirmation(ctx context.Context, companyCo
 		return nil
 	}
 
+	if order.Email == "" {
+		return errors.New("customer email address is missing")
+	}
+
 	mail := settings.EmailSettings
-	preview, _ := s.PreviewSalesOrderEmail(ctx, companyCode, order)
+	preview, err := s.PreviewSalesOrderEmail(ctx, companyCode, order)
+	if err != nil || preview == nil {
+		return errors.New("failed to generate email preview")
+	}
 
 	e := email.NewEmail()
 	e.From = fmt.Sprintf("%s <%s>", mail.SenderName, mail.SenderEmail)
@@ -60,6 +68,16 @@ func (s *emailService) SendSalesOrderConfirmation(ctx context.Context, companyCo
 
 	auth := smtp.PlainAuth("", mail.EmailUsername, mail.EmailPassword, mail.SMTPHost)
 	addr := fmt.Sprintf("%s:%d", mail.SMTPHost, mail.SMTPPort)
+
+	// Handle SSL (Port 465) vs STARTTLS (Other ports)
+	if mail.SMTPPort == 465 || mail.EncryptionType == "SSL" {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true,
+			ServerName:         mail.SMTPHost,
+		}
+		return e.SendWithTLS(addr, auth, tlsConfig)
+	}
+
 	return e.Send(addr, auth)
 }
 
@@ -100,8 +118,15 @@ func (s *emailService) SendPaymentReceipt(ctx context.Context, companyCode strin
 		return nil
 	}
 
+	if customer.Email == "" {
+		return errors.New("customer email address is missing")
+	}
+
 	mail := settings.EmailSettings
-	preview, _ := s.PreviewPaymentReceiptEmail(ctx, companyCode, payment, customer)
+	preview, err := s.PreviewPaymentReceiptEmail(ctx, companyCode, payment, customer)
+	if err != nil || preview == nil {
+		return errors.New("failed to generate email preview")
+	}
 
 	e := email.NewEmail()
 	e.From = fmt.Sprintf("%s <%s>", mail.SenderName, mail.SenderEmail)
@@ -117,6 +142,16 @@ func (s *emailService) SendPaymentReceipt(ctx context.Context, companyCode strin
 
 	auth := smtp.PlainAuth("", mail.EmailUsername, mail.EmailPassword, mail.SMTPHost)
 	addr := fmt.Sprintf("%s:%d", mail.SMTPHost, mail.SMTPPort)
+
+	// Handle SSL (Port 465) vs STARTTLS (Other ports)
+	if mail.SMTPPort == 465 || mail.EncryptionType == "SSL" {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true,
+			ServerName:         mail.SMTPHost,
+		}
+		return e.SendWithTLS(addr, auth, tlsConfig)
+	}
+
 	return e.Send(addr, auth)
 }
 
@@ -159,6 +194,10 @@ func (s *emailService) SendForgotPasswordEmail(ctx context.Context, user *models
 		return errors.New("email service not configured for this company. please contact administrator")
 	}
 
+	if user.Email == "" {
+		return errors.New("user email address is missing")
+	}
+
 	mail := settings.EmailSettings
 	subject := "Password Recovery - DDR AutoPro"
 	body := fmt.Sprintf(`
@@ -182,5 +221,15 @@ Best regards,
 
 	auth := smtp.PlainAuth("", mail.EmailUsername, mail.EmailPassword, mail.SMTPHost)
 	addr := fmt.Sprintf("%s:%d", mail.SMTPHost, mail.SMTPPort)
+
+	// Handle SSL (Port 465) vs STARTTLS (Other ports)
+	if mail.SMTPPort == 465 || mail.EncryptionType == "SSL" {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true,
+			ServerName:         mail.SMTPHost,
+		}
+		return e.SendWithTLS(addr, auth, tlsConfig)
+	}
+
 	return e.Send(addr, auth)
 }

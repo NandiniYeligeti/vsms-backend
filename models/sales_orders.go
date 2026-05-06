@@ -62,6 +62,8 @@ type SalesOrder struct {
 	UTRNumber   string  `bson:"utr_number" json:"utr_number"`
 
 	Status string `bson:"status" json:"status"`
+	DeliveryStatus string `bson:"delivery_status" json:"delivery_status"` // Pending, Ready, Delivered, Cancelled
+	ActualDeliveryDate *time.Time `bson:"actual_delivery_date" json:"actual_delivery_date"`
 	EmailStatus string `bson:"email_status" json:"email_status"` // Sent, Failed, Pending
 
 	IncentiveAmount float64   `bson:"incentive_amount" json:"incentive_amount"`
@@ -89,6 +91,8 @@ type UpdateSalesOrder struct {
 	IncentiveStatus *string  `bson:"incentive_status,omitempty" json:"incentive_status,omitempty"`
 	IncentivePaymentMethod   *string `bson:"incentive_payment_method,omitempty" json:"incentive_payment_method,omitempty"`
 	IncentiveReferenceNumber *string `bson:"incentive_reference_number,omitempty" json:"incentive_reference_number,omitempty"`
+	DeliveryStatus *string `bson:"delivery_status,omitempty" json:"delivery_status,omitempty"`
+	ActualDeliveryDate *time.Time `bson:"actual_delivery_date,omitempty" json:"actual_delivery_date,omitempty"`
 }
 
 func NewSalesOrder() *SalesOrder {
@@ -100,6 +104,7 @@ func NewSalesOrder() *SalesOrder {
 		EntityID:       id.Hex(),
 		SalesOrderCode: id.Hex()[18:24], // Running number only; prefix/suffix applied by service
 		Status:         "Pending",
+		DeliveryStatus: "Pending",
 		IsDeleted:      false,
 		CreatedAt:      now,
 		UpdatedAt:      now,

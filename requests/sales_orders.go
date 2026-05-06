@@ -47,6 +47,8 @@ type UpdateSalesOrderRequest struct {
 	IncentiveStatus *string  `json:"incentive_status,omitempty"`
 	IncentivePaymentMethod   *string `json:"incentive_payment_method,omitempty"`
 	IncentiveReferenceNumber *string `json:"incentive_reference_number,omitempty"`
+	DeliveryStatus *string `json:"delivery_status,omitempty"`
+	ActualDeliveryDate *time.Time `json:"actual_delivery_date,omitempty"`
 }
 
 func NewCreateSalesOrderRequest() *CreateSalesOrderRequest {

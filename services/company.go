@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/smtp"
 	"time"
@@ -68,7 +69,6 @@ func (s *companySettingsService) Update(ctx context.Context, companyCode string,
 
 func (s *companySettingsService) SendTestEmail(ctx context.Context, companyCode string, email *models.EmailSettings) error {
 	auth := smtp.PlainAuth("", email.EmailUsername, email.EmailPassword, email.SMTPHost)
-
 	to := []string{email.SenderEmail}
 	msg := []byte("To: " + email.SenderEmail + "\r\n" +
 		"Subject: VSMS Test Email\r\n" +
@@ -76,5 +76,56 @@ func (s *companySettingsService) SendTestEmail(ctx context.Context, companyCode 
 		"This is a test email from your Vehicle Sales Management System. Your SMTP settings are correctly configured.\r\n")
 
 	addr := fmt.Sprintf("%s:%d", email.SMTPHost, email.SMTPPort)
+
+	if email.SMTPPort == 465 || email.EncryptionType == "SSL" {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: true,
+			ServerName:         email.SMTPHost,
+		}
+
+		conn, err := tls.Dial("tcp", addr, tlsConfig)
+		if err != nil {
+			return err
+		}
+		defer conn.Close()
+
+		client, err := smtp.NewClient(conn, email.SMTPHost)
+		if err != nil {
+			return err
+		}
+		defer client.Quit()
+
+		if err = client.Auth(auth); err != nil {
+			return err
+		}
+
+		if err = client.Mail(email.SenderEmail); err != nil {
+			return err
+		}
+
+		for _, addr := range to {
+			if err = client.Rcpt(addr); err != nil {
+				return err
+			}
+		}
+
+		w, err := client.Data()
+		if err != nil {
+			return err
+		}
+
+		_, err = w.Write(msg)
+		if err != nil {
+			return err
+		}
+
+		err = w.Close()
+		if err != nil {
+			return err
+		}
+
+		return client.Quit()
+	}
+
 	return smtp.SendMail(addr, auth, email.SenderEmail, to, msg)
 }
