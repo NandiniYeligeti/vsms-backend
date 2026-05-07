@@ -223,6 +223,27 @@ func (s *loanService) Update(
 	var updated models.Loan
 	_ = collection.FindOne(ctx, filter).Decode(&updated)
 
+	// If loan is now Disbursed, update the Sales Order status to "Fully Paid"
+	if updated.Status == "Disbursed" && updated.SalesOrderID != "" {
+		soCol := db.Database(fmt.Sprintf("company_%s", companyCode)).Collection("sales_orders")
+		soFilter := bson.M{"entity_id": updated.SalesOrderID}
+		if oid, err := primitive.ObjectIDFromHex(updated.SalesOrderID); err == nil {
+			soFilter = bson.M{"_id": oid}
+		}
+		
+		_, err := soCol.UpdateOne(ctx, soFilter, bson.M{
+			"$set": bson.M{
+				"status": "Fully Paid",
+				"updated_at": time.Now(),
+			},
+		})
+		if err != nil {
+			fmt.Printf("Error updating sales order %s to Fully Paid: %v\n", updated.SalesOrderID, err)
+		} else {
+			fmt.Println("Sales order updated to Fully Paid upon loan disbursement")
+		}
+	}
+
 	return &updated, nil
 }
 

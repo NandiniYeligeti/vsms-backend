@@ -66,6 +66,23 @@ type SalesOrder struct {
 	ActualDeliveryDate *time.Time `bson:"actual_delivery_date" json:"actual_delivery_date"`
 	EmailStatus string `bson:"email_status" json:"email_status"` // Sent, Failed, Pending
 
+	// Registration Details
+	RegistrationStatus        string     `bson:"registration_status" json:"registration_status"` // Pending, In Process, Completed
+	RegistrationApplicationNo string     `bson:"registration_application_no" json:"registration_application_no"`
+	RegistrationTempNo        string     `bson:"registration_temp_no" json:"registration_temp_no"`
+	RegistrationAgentName     string     `bson:"registration_agent_name" json:"registration_agent_name"`
+	RegistrationAgentMobile   string     `bson:"registration_agent_mobile" json:"registration_agent_mobile"`
+	RegistrationDate          *time.Time `bson:"registration_date" json:"registration_date"`
+	RegistrationDocumentUrl   string     `bson:"registration_document_url" json:"registration_document_url"`
+	VehicleNumber             string     `bson:"vehicle_number" json:"vehicle_number"`
+	RTO                       string     `bson:"rto" json:"rto"`
+
+	// Insurance Details
+	InsuranceCompany   string     `bson:"insurance_company" json:"insurance_company"`
+	InsurancePolicyNo  string     `bson:"insurance_policy_no" json:"insurance_policy_no"`
+	InsuranceStartDate *time.Time `bson:"insurance_start_date" json:"insurance_start_date"`
+	InsuranceEndDate   *time.Time `bson:"insurance_end_date" json:"insurance_end_date"`
+
 	IncentiveAmount float64   `bson:"incentive_amount" json:"incentive_amount"`
 	IncentiveStatus string    `bson:"incentive_status" json:"incentive_status"`
 	IncentiveDate   time.Time `bson:"incentive_date" json:"incentive_date"`
@@ -93,6 +110,23 @@ type UpdateSalesOrder struct {
 	IncentiveReferenceNumber *string `bson:"incentive_reference_number,omitempty" json:"incentive_reference_number,omitempty"`
 	DeliveryStatus *string `bson:"delivery_status,omitempty" json:"delivery_status,omitempty"`
 	ActualDeliveryDate *time.Time `bson:"actual_delivery_date,omitempty" json:"actual_delivery_date,omitempty"`
+
+	// Registration Details
+	RegistrationStatus        *string    `bson:"registration_status,omitempty" json:"registration_status,omitempty"`
+	RegistrationApplicationNo *string    `bson:"registration_application_no,omitempty" json:"registration_application_no,omitempty"`
+	RegistrationTempNo        *string    `bson:"registration_temp_no,omitempty" json:"registration_temp_no,omitempty"`
+	RegistrationAgentName     *string    `bson:"registration_agent_name,omitempty" json:"registration_agent_name,omitempty"`
+	RegistrationAgentMobile   *string    `bson:"registration_agent_mobile,omitempty" json:"registration_agent_mobile,omitempty"`
+	RegistrationDate          *time.Time `bson:"registration_date,omitempty" json:"registration_date,omitempty"`
+	RegistrationDocumentUrl   *string    `bson:"registration_document_url,omitempty" json:"registration_document_url,omitempty"`
+	VehicleNumber             *string    `bson:"vehicle_number,omitempty" json:"vehicle_number,omitempty"`
+	RTO                       *string    `bson:"rto,omitempty" json:"rto,omitempty"`
+
+	// Insurance Details
+	InsuranceCompany   *string    `bson:"insurance_company,omitempty" json:"insurance_company,omitempty"`
+	InsurancePolicyNo  *string    `bson:"insurance_policy_no,omitempty" json:"insurance_policy_no,omitempty"`
+	InsuranceStartDate *time.Time `bson:"insurance_start_date,omitempty" json:"insurance_start_date,omitempty"`
+	InsuranceEndDate   *time.Time `bson:"insurance_end_date,omitempty" json:"insurance_end_date,omitempty"`
 }
 
 func NewSalesOrder() *SalesOrder {
@@ -105,6 +139,7 @@ func NewSalesOrder() *SalesOrder {
 		SalesOrderCode: id.Hex()[18:24], // Running number only; prefix/suffix applied by service
 		Status:         "Pending",
 		DeliveryStatus: "Pending",
+		RegistrationStatus: "Pending",
 		IsDeleted:      false,
 		CreatedAt:      now,
 		UpdatedAt:      now,
@@ -139,4 +174,21 @@ func (s *SalesOrder) Bind(req *requests.CreateSalesOrderRequest) {
 	s.PaymentMode = req.PaymentMode
 	s.LoanStatus = req.LoanStatus
 	s.UTRNumber = req.UTRNumber
+
+	// Registration Details
+	s.RegistrationStatus = req.RegistrationStatus
+	s.RegistrationApplicationNo = req.RegistrationApplicationNo
+	s.RegistrationTempNo = req.RegistrationTempNo
+	s.RegistrationAgentName = req.RegistrationAgentName
+	s.RegistrationAgentMobile = req.RegistrationAgentMobile
+	s.RegistrationDate = req.RegistrationDate
+	s.RegistrationDocumentUrl = req.RegistrationDocumentUrl
+	s.VehicleNumber = req.VehicleNumber
+	s.RTO = req.RTO
+
+	// Insurance Details
+	s.InsuranceCompany = req.InsuranceCompany
+	s.InsurancePolicyNo = req.InsurancePolicyNo
+	s.InsuranceStartDate = req.InsuranceStartDate
+	s.InsuranceEndDate = req.InsuranceEndDate
 }

@@ -35,6 +35,23 @@ type CreateSalesOrderRequest struct {
 	PaymentMode string `json:"payment_mode"`
 	LoanStatus  string `json:"loan_status"`
 	UTRNumber   string `json:"utr_number"`
+	
+	// Registration Details
+	RegistrationStatus        string     `json:"registration_status"`
+	RegistrationApplicationNo string     `json:"registration_application_no"`
+	RegistrationTempNo        string     `json:"registration_temp_no"`
+	RegistrationAgentName     string     `json:"registration_agent_name"`
+	RegistrationAgentMobile   string     `json:"registration_agent_mobile"`
+	RegistrationDate          *time.Time `json:"registration_date"`
+	RegistrationDocumentUrl   string     `json:"registration_document_url"`
+	VehicleNumber             string     `json:"vehicle_number"`
+	RTO                       string     `json:"rto"`
+
+	// Insurance Details
+	InsuranceCompany   string     `json:"insurance_company"`
+	InsurancePolicyNo  string     `json:"insurance_policy_no"`
+	InsuranceStartDate *time.Time `json:"insurance_start_date"`
+	InsuranceEndDate   *time.Time `json:"insurance_end_date"`
 }
 
 type UpdateSalesOrderRequest struct {
@@ -49,6 +66,23 @@ type UpdateSalesOrderRequest struct {
 	IncentiveReferenceNumber *string `json:"incentive_reference_number,omitempty"`
 	DeliveryStatus *string `json:"delivery_status,omitempty"`
 	ActualDeliveryDate *time.Time `json:"actual_delivery_date,omitempty"`
+
+	// Registration Details
+	RegistrationStatus        *string    `json:"registration_status,omitempty"`
+	RegistrationApplicationNo *string    `json:"registration_application_no,omitempty"`
+	RegistrationTempNo        *string    `json:"registration_temp_no,omitempty"`
+	RegistrationAgentName     *string    `json:"registration_agent_name,omitempty"`
+	RegistrationAgentMobile   *string    `json:"registration_agent_mobile,omitempty"`
+	RegistrationDate          *time.Time `json:"registration_date,omitempty"`
+	RegistrationDocumentUrl   *string    `json:"registration_document_url,omitempty"`
+	VehicleNumber             *string    `json:"vehicle_number,omitempty"`
+	RTO                       *string    `json:"rto,omitempty"`
+
+	// Insurance Details
+	InsuranceCompany   *string    `json:"insurance_company,omitempty"`
+	InsurancePolicyNo  *string    `json:"insurance_policy_no,omitempty"`
+	InsuranceStartDate *time.Time `json:"insurance_start_date,omitempty"`
+	InsuranceEndDate   *time.Time `json:"insurance_end_date,omitempty"`
 }
 
 func NewCreateSalesOrderRequest() *CreateSalesOrderRequest {
