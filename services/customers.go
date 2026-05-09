@@ -309,7 +309,7 @@ func (s *customerService) GetLedger(
 		entries = append(entries, &models.LedgerEntry{
 			ID:             s.EntityID,
 			Date:           s.SaleDate,
-			Description:    "Vehicle Sale",
+			Description:    "Vehicle Sales",
 			Status:         "Done",
 			Debit:          s.TotalAmount + s.DiscountAmount,
 			Credit:         0,
@@ -336,7 +336,12 @@ func (s *customerService) GetLedger(
 			entries = append(entries, &models.LedgerEntry{
 				ID:             s.EntityID + "_dp",
 				Date:           s.SaleDate,
-				Description:    "Down Payment",
+				Description:    func() string {
+					if s.PaymentType == "Full Payment" {
+						return "Full Payment"
+					}
+					return "Down Payment"
+				}(),
 				Status:         "Received",
 				Debit:          0,
 				Credit:         s.DownPayment,
@@ -456,8 +461,7 @@ func (s *customerService) GetLedger(
 		}
 	}
 
-	// Sort by date (Oldest on top, Recent on bottom as per user request)
-	sort.Slice(entries, func(i, j int) bool {
+	sort.SliceStable(entries, func(i, j int) bool {
 		return entries[i].Date.Before(entries[j].Date)
 	})
 

@@ -62,6 +62,7 @@ type SalesOrder struct {
 	UTRNumber   string  `bson:"utr_number" json:"utr_number"`
 
 	Status string `bson:"status" json:"status"`
+	FullPaymentDate *time.Time `bson:"full_payment_date" json:"full_payment_date"`
 	DeliveryStatus string `bson:"delivery_status" json:"delivery_status"` // Pending, Ready, Delivered, Cancelled
 	ActualDeliveryDate *time.Time `bson:"actual_delivery_date" json:"actual_delivery_date"`
 	EmailStatus string `bson:"email_status" json:"email_status"` // Sent, Failed, Pending
@@ -104,6 +105,7 @@ type UpdateSalesOrder struct {
 	LoanAmount   *float64   `bson:"loan_amount,omitempty" json:"loan_amount,omitempty"`
 	BalanceAmount *float64  `bson:"balance_amount,omitempty" json:"balance_amount,omitempty"`
 	Status       *string    `bson:"status,omitempty" json:"status,omitempty"`
+	FullPaymentDate *time.Time `bson:"full_payment_date,omitempty" json:"full_payment_date,omitempty"`
 	IncentiveAmount *float64 `bson:"incentive_amount,omitempty" json:"incentive_amount,omitempty"`
 	IncentiveStatus *string  `bson:"incentive_status,omitempty" json:"incentive_status,omitempty"`
 	IncentivePaymentMethod   *string `bson:"incentive_payment_method,omitempty" json:"incentive_payment_method,omitempty"`

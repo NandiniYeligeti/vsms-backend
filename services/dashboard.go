@@ -159,5 +159,47 @@ func (s *dashboardService) GetStats(ctx context.Context, companyCode string) (*m
 		}
 	}
 
+	// 9. Operational Metrics
+	stats.RegistrationPending, _ = database.Collection(SalesOrderCollection).CountDocuments(ctx, bson.M{"registration_status": "Pending", "is_deleted": false})
+	stats.RegistrationInProcess, _ = database.Collection(SalesOrderCollection).CountDocuments(ctx, bson.M{"registration_status": "In Process", "is_deleted": false})
+	stats.DeliveryPending, _ = database.Collection(SalesOrderCollection).CountDocuments(ctx, bson.M{"delivery_status": "Pending", "is_deleted": false})
+	stats.InsurancePending, _ = database.Collection(SalesOrderCollection).CountDocuments(ctx, bson.M{"insurance_policy_no": "", "is_deleted": false})
+	stats.IncentivePending, _ = database.Collection(SalesOrderCollection).CountDocuments(ctx, bson.M{"incentive_status": "Pending", "is_deleted": false})
+	stats.IncentivePaid, _ = database.Collection(SalesOrderCollection).CountDocuments(ctx, bson.M{"incentive_status": "Paid", "is_deleted": false})
+	
+	// 10. Today's Follow-ups
+	todayStart := time.Now().Truncate(24 * time.Hour)
+	todayEnd := todayStart.Add(24 * time.Hour)
+	
+	enqCursor, err := database.Collection(EnquiryCollection).Find(ctx, bson.M{
+		"is_deleted": false,
+		"is_converted": false,
+	})
+	if err == nil {
+		var allEnquiries []*models.Enquiry
+		if err := enqCursor.All(ctx, &allEnquiries); err == nil {
+			for _, enq := range allEnquiries {
+				if len(enq.FollowUps) > 0 {
+					lastFU := enq.FollowUps[len(enq.FollowUps)-1]
+					if lastFU.NextDate != "" {
+						// Try parsing the date string. Common formats: "2006-01-02" or RFC3339
+						parsedDate, err := time.Parse("2006-01-02", lastFU.NextDate)
+						if err != nil {
+							// Try RFC3339 if the first one fails
+							parsedDate, err = time.Parse(time.RFC3339, lastFU.NextDate)
+						}
+						
+						if err == nil {
+							if !parsedDate.Before(todayStart) && parsedDate.Before(todayEnd) {
+								stats.TodayFollowUps++
+								stats.FollowUpList = append(stats.FollowUpList, enq)
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	return stats, nil
 }

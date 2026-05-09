@@ -233,8 +233,9 @@ func (s *loanService) Update(
 		
 		_, err := soCol.UpdateOne(ctx, soFilter, bson.M{
 			"$set": bson.M{
-				"status": "Fully Paid",
-				"updated_at": time.Now(),
+				"status":            "Fully Paid",
+				"full_payment_date": updated.DisbursementDate,
+				"updated_at":        time.Now(),
 			},
 		})
 		if err != nil {

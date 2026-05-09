@@ -162,6 +162,7 @@ func (s *salesOrderService) Create(
 			order.Status = "Part-Funded"
 		} else {
 			order.Status = "Fully Paid"
+			order.FullPaymentDate = &order.SaleDate
 		}
 
 		// Calculate Incentive (Case-Insensitive)
@@ -459,6 +460,8 @@ func (s *salesOrderService) Update(
 			// So here we can just default to Fully Paid if balance is 0, 
 			// OR check if we have enough info to say Part-Funded.
 			updateFields["status"] = "Fully Paid"
+			now := time.Now()
+			updateFields["full_payment_date"] = &now
 		}
 	}
 

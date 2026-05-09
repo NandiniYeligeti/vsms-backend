@@ -9,6 +9,14 @@ type DashboardStats struct {
 	TotalSalesRevenue    float64 `json:"total_sales_revenue"`
 	TotalPendingPayments float64 `json:"total_pending_payments"`
 	TotalPendingLoans    int64   `json:"total_pending_loans"`
+	RegistrationPending  int64   `json:"registration_pending"`
+	RegistrationInProcess int64  `json:"registration_in_process"`
+	DeliveryPending      int64   `json:"delivery_pending"`
+	InsurancePending     int64   `json:"insurance_pending"`
+	IncentivePending     int64   `json:"incentive_pending"`
+	IncentivePaid        int64   `json:"incentive_paid"`
+	TodayFollowUps       int64   `json:"today_follow_ups"`
+	FollowUpList         []*Enquiry `json:"follow_up_list"`
 
 	MonthlyRevenue []MonthlyRevenue `json:"monthly_revenue"`
 	SalesByModel   []ModelSales     `json:"sales_by_model"`
