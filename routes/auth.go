@@ -41,8 +41,8 @@ func Login(c *gin.Context) {
 		c.SetCookie("access_token", res.Token, 86400, "/", "", false, true)
 	}
 
-	// Return only user info (not token)
-	c.JSON(http.StatusOK, gin.H{"user": res.User})
+	// Return user info and token
+	c.JSON(http.StatusOK, gin.H{"user": res.User, "token": res.Token})
 }
 
 func CreateCompany(c *gin.Context) {
