@@ -19,20 +19,22 @@ type CreateCustomerRequest struct {
 	Photo         *multipart.FileHeader `json:"photo" form:"photo"`
 	AadhaarCardNo string                `json:"aadhaar_card_no" form:"aadhaar_card_no"`
 	PanCardNo     string                `json:"pan_card_no" form:"pan_card_no"`
+	Showroom      string                `json:"showroom" form:"showroom"`
 }
 
 type UpdateCustomerRequest struct {
-	CustomerName  *string               `json:"customer_name,omitempty" form:"customer_name"`
-	MobileNumber  *string               `json:"mobile_number,omitempty" form:"mobile_number"`
-	Email         *string               `json:"email,omitempty" form:"email"`
-	Address       *string               `json:"address,omitempty" form:"address"`
-	City          *string               `json:"city,omitempty" form:"city"`
-	State         *string               `json:"state,omitempty" form:"state"`
-	Pincode       *string               `json:"pincode,omitempty" form:"pincode"`
-	Photo         *multipart.FileHeader `json:"photo,omitempty" form:"photo"`
-	AadhaarCardNo *string               `json:"aadhaar_card_no,omitempty" form:"aadhaar_card_no"`
+	CustomerName  *string                 `json:"customer_name,omitempty" form:"customer_name"`
+	MobileNumber  *string                 `json:"mobile_number,omitempty" form:"mobile_number"`
+	Email         *string                 `json:"email,omitempty" form:"email"`
+	Address       *string                 `json:"address,omitempty" form:"address"`
+	City          *string                 `json:"city,omitempty" form:"city"`
+	State         *string                 `json:"state,omitempty" form:"state"`
+	Pincode       *string                 `json:"pincode,omitempty" form:"pincode"`
+	Photo         *multipart.FileHeader   `json:"photo,omitempty" form:"photo"`
+	AadhaarCardNo *string                 `json:"aadhaar_card_no,omitempty" form:"aadhaar_card_no"`
 	PanCardNo     *string                 `json:"pan_card_no,omitempty" form:"pan_card_no"`
 	Documents     []*multipart.FileHeader `json:"documents,omitempty" form:"documents"`
+	Showroom      *string                 `json:"showroom,omitempty" form:"showroom"`
 }
 
 func NewCreateCustomerRequest() *CreateCustomerRequest {

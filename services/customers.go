@@ -64,6 +64,7 @@ func (s *customerService) Create(
 
 	customer := models.NewCustomer()
 	customer.Bind(req)
+	customer.Showroom = req.Showroom
 
 	_, err := collection.InsertOne(ctx, customer)
 	if err != nil {
@@ -171,6 +172,9 @@ func (s *customerService) Update(
 	}
 	if req.PanCardNo != nil {
 		updateFields["pan_card_no"] = *req.PanCardNo
+	}
+	if req.Showroom != nil {
+		updateFields["showroom"] = *req.Showroom
 	}
 
 	filter := bson.M{"entity_id": id}
@@ -334,9 +338,9 @@ func (s *customerService) GetLedger(
 
 		if s.DownPayment > 0 {
 			entries = append(entries, &models.LedgerEntry{
-				ID:             s.EntityID + "_dp",
-				Date:           s.SaleDate,
-				Description:    func() string {
+				ID:   s.EntityID + "_dp",
+				Date: s.SaleDate,
+				Description: func() string {
 					if s.PaymentType == "Full Payment" {
 						return "Full Payment"
 					}
