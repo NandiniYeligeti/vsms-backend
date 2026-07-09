@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,13 +10,13 @@ import (
 
 	"vehiclesales/middleware"
 	"vehiclesales/routes"
+	"vehiclesales/services"
 	"vehiclesales/storage"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
-
 
 func main() {
 	// Load environment variables
@@ -31,6 +32,13 @@ func main() {
 		log.Fatalf("Mongo connection failed: %v", err)
 	}
 	fmt.Println("MongoDB connected")
+
+	seedCtx, seedCancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer seedCancel()
+	if err := services.EnsureSuperAdmin(seedCtx); err != nil {
+		log.Fatalf("Super admin seed failed: %v", err)
+	}
+	fmt.Println("Super admin seed validated")
 
 	// // Initialize Vault-backed JWT signer and cache public key
 	// if err := jwtmanager.InitVaultJWT(); err != nil {

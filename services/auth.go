@@ -9,6 +9,7 @@ import (
 	"vehiclesales/models"
 	"vehiclesales/requests"
 	"vehiclesales/storage"
+	"vehiclesales/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -43,26 +44,6 @@ func NewAuthService() AuthService {
 }
 
 func (s *authService) Login(ctx context.Context, req *requests.LoginRequest) (*AuthResponse, error) {
-	// Super Admin Hardcoded Login
-	if req.Email == "NandiniY" && req.Password == "Nihnan@853" {
-		superAdmin := &models.User{
-			ID:          primitive.NewObjectID(),
-			Email:       req.Email,
-			Role:        "super_admin",
-			CompanyCode: "SUPER", // Just a placeholder
-			CompanyName: "System Admin",
-		}
-		token, err := middleware.GenerateJWT(superAdmin.Email, superAdmin.Role, superAdmin.CompanyCode)
-		if err != nil {
-			return nil, err
-		}
-		return &AuthResponse{
-			User:  superAdmin,
-			Token: token,
-		}, nil
-	}
-
-	// Normal Company Admin Login
 	db := storage.GetMongo()
 	masterDB := db.Database(MasterDatabase)
 
@@ -71,7 +52,6 @@ func (s *authService) Login(ctx context.Context, req *requests.LoginRequest) (*A
 		"email":      req.Email,
 		"is_deleted": false,
 	}).Decode(&user)
-
 	if err == mongo.ErrNoDocuments {
 		return nil, errors.New("invalid email or password")
 	}
@@ -79,8 +59,7 @@ func (s *authService) Login(ctx context.Context, req *requests.LoginRequest) (*A
 		return nil, err
 	}
 
-	// In a real app, use bcrypt.CompareHashAndPassword instead of plaintext check
-	if user.Password != req.Password {
+	if err := utils.CheckPassword(user.Password, req.Password); err != nil {
 		return nil, errors.New("invalid email or password")
 	}
 
@@ -88,6 +67,7 @@ func (s *authService) Login(ctx context.Context, req *requests.LoginRequest) (*A
 	if err != nil {
 		return nil, err
 	}
+
 	return &AuthResponse{
 		User:  &user,
 		Token: token,
@@ -111,13 +91,17 @@ func (s *authService) CreateCompany(ctx context.Context, req *requests.CreateCom
 		return nil, errors.New("admin email already exists")
 	}
 
-	// Create user
+	hashedPassword, err := utils.HashPassword(req.AdminPassword)
+	if err != nil {
+		return nil, err
+	}
+
 	now := time.Now()
 	user := models.User{
 		ID:          primitive.NewObjectID(),
 		Email:       req.AdminEmail,
-		Password:    req.AdminPassword, // In a real app, hash this with bcrypt
-		Role:        "admin",           // They are the admin of their respective company
+		Password:    hashedPassword,
+		Role:        "admin",
 		CompanyCode: req.CompanyCode,
 		CompanyName: req.CompanyName,
 		IsDeleted:   false,
@@ -125,13 +109,10 @@ func (s *authService) CreateCompany(ctx context.Context, req *requests.CreateCom
 		UpdatedAt:   now,
 	}
 
-	_, err := usersColl.InsertOne(ctx, user)
+	_, err = usersColl.InsertOne(ctx, user)
 	if err != nil {
 		return nil, err
 	}
-
-	// Create initial database & a dummy collection (optional, mongodb creates on fly)
-	// Seed their database with default records? Left for future enhancements.
 
 	return &user, nil
 }
@@ -142,6 +123,29 @@ func (s *authService) GetCompanies(ctx context.Context) ([]*models.User, error) 
 
 	opts := options.Find().SetSort(bson.M{"created_at": -1})
 	cursor, err := masterDB.Collection(UsersCollection).Find(ctx, bson.M{"is_deleted": false, "role": "admin"}, opts)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var users []*models.User
+	if err := cursor.All(ctx, &users); err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (s *authService) GetUsers(ctx context.Context, companyCode string) ([]*models.User, error) {
+	db := storage.GetMongo()
+	masterDB := db.Database(MasterDatabase)
+
+	opts := options.Find().SetSort(bson.M{"created_at": -1})
+	cursor, err := masterDB.Collection(UsersCollection).Find(ctx, bson.M{
+		"is_deleted":   false,
+		"role":         "user",
+		"company_code": companyCode,
+	}, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -179,12 +183,17 @@ func (s *authService) CreateUser(ctx context.Context, req *requests.CreateUserRe
 		}
 	}
 
+	hashedPassword, err := utils.HashPassword(req.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	now := time.Now()
 	user := models.User{
 		ID:          primitive.NewObjectID(),
 		Username:    req.Username,
 		Email:       req.Email,
-		Password:    req.Password, // In a real app, hash this with bcrypt
+		Password:    hashedPassword,
 		Role:        "user",
 		CompanyCode: companyCode,
 		CompanyName: companyName,
@@ -198,35 +207,12 @@ func (s *authService) CreateUser(ctx context.Context, req *requests.CreateUserRe
 		UpdatedAt:   now,
 	}
 
-	_, err := usersColl.InsertOne(ctx, user)
+	_, err = usersColl.InsertOne(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
 	return &user, nil
-}
-
-func (s *authService) GetUsers(ctx context.Context, companyCode string) ([]*models.User, error) {
-	db := storage.GetMongo()
-	masterDB := db.Database(MasterDatabase)
-
-	opts := options.Find().SetSort(bson.M{"created_at": -1})
-	cursor, err := masterDB.Collection(UsersCollection).Find(ctx, bson.M{
-		"is_deleted":    false,
-		"role":          "user",
-		"company_code":  companyCode,
-	}, opts)
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var users []*models.User
-	if err := cursor.All(ctx, &users); err != nil {
-		return nil, err
-	}
-
-	return users, nil
 }
 
 func (s *authService) UpdateUserMenus(ctx context.Context, userID string, menus []string, permissions []requests.MenuPermission, branches, showrooms, areas []string) error {
@@ -281,9 +267,14 @@ func (s *authService) UpdatePassword(ctx context.Context, userID string, newPass
 		return errors.New("invalid user ID")
 	}
 
+	hashedPassword, err := utils.HashPassword(newPassword)
+	if err != nil {
+		return err
+	}
+
 	_, err = masterDB.Collection(UsersCollection).UpdateOne(ctx,
 		bson.M{"_id": objID},
-		bson.M{"$set": bson.M{"password": newPassword, "updated_at": time.Now()}},
+		bson.M{"$set": bson.M{"password": hashedPassword, "updated_at": time.Now()}},
 	)
 	return err
 }
@@ -308,5 +299,3 @@ func (s *authService) ForgotPassword(ctx context.Context, email string) error {
 	emailSvc := NewEmailService()
 	return emailSvc.SendForgotPasswordEmail(ctx, &user)
 }
-
-
